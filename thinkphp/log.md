@@ -201,5 +201,9 @@ class BlogController extends BaseController{
 
 ## 数据库与模型
 ### 连接数据库
-1. ThinkPHP采用数据抽象层,基于PDO模式
+1. ThinkPHP采用数据抽象层,基于PDO式
+1. 修改/config/database.php可以设置连接信息
+1. 本地测试,会优先采用.env的配置信息
+
+### 模式初探
 
