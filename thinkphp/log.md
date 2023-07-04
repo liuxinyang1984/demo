@@ -205,5 +205,23 @@ class BlogController extends BaseController{
 1. 修改/config/database.php可以设置连接信息
 1. 本地测试,会优先采用.env的配置信息
 
-### 模式初探
+### 数据库的数据查询
+1. 单数据查询
+    - Db::table()中table必须指定完整数据表名(包括前缀)
+    - 如果希望只查询一条数据,可以使用find()方法,需要指定where条件:
+    ```php
+    Db::table(`tp_user`)->where('id',27)->find()
+    ```
+    - Db::getLastSql()方法,可以得到最近一条SQL查询的原生语句
+    - 没有查询到任何值,返回null
+    - 使用findOrFail()方法同样可以查询一条数据,在没有数据时抛出一个异常:
+    ```php
+    Db::table('tp_user')->where('id',1)->findOrFail()
+    ```
+    - 使用findOrEmpty()方法也可以查询一条数据,但在没有数据时返回一个空数组:
+    ```php
+    Db::table('tp_user')->where('id',1)->findOrEmpty()
+    ```
+1. 数据集查询
+1. 其它查询
 
