@@ -297,6 +297,7 @@ class BlogController extends BaseController{
         ```php
         $userQuery->removeOption()->select();
         ```
+
 ### 数据新增
 1. 新增单条数据    
     1. 使用insert()方法可以向表添加一条数据,有默认值的字段可以不添加
@@ -441,5 +442,310 @@ class BlogController extends BaseController{
     ```php
     Db::name('user')->delete(true);
     ```
+
+### 数据查询
+1. 比较查询
+    查询表达式支持大部分常用的SQL请问,格式如下:
+    ```php
+    where('字段名','查询表达式','查询条件');
+    ```
+    在查询数据进行筛选时,采用where()方法,比如id=80:
+    ```php
+    Db::name('user')->where('id',80)->find();
+    Db::name('user')->where('id','=','80')->find();
+    ```
+    使用<> > < >= <=可以筛选出各种符合比较值的数据列表:
+    ```php
+    Db::name('user')->where('id','<>',80)->select();
+    ```
+1. 区间查询
+    1. 使用like表达式进行模糊查询
+    ```php
+    Db::name('user')->where('email','like','xiao%')->select();
+    return Db::getLastSql();
+    ```
+    1. like表达式还支持数组传递进行模糊查询
+    ```php
+    Db::name('user')->where('email','like',['xiao%','wu%'])->select();
+    return Db::getLastSql();
+    ```
+    结果:
+    ```SQL
+    SELECT * FROM `tp_user` WHERE (`email` LIKE 'xiao%' AND `email` LIKE 'wu%')
+    ```
+    添加第4个参数以后:
+    ```php
+    Db::name('user')->where('email','like',['xiao%','wu%'],'or')->select();
+    return Db::getLastSql();
+    ```
+    结果:
+    ```SQL
+    SELECT * FROM `tp_user` WHERE (`email` LIKE 'xiao%' OR `email` LIKE 'wu%')
+    ```
+    1. like表达式具有两个快捷方式whereLike()和whereNotLike();
+    ```php
+    //实际运行中,只会返回第一个return
+    Db::name('user')->whereLike('email',['xiao%','wu%'])->select();
+    return Db::getLastSql();
+    Db::name('user')->whereLike('email',['xiao%','wu%'],'or')->select();
+    return Db::getLastSql();
+    Db::name('user')->whereNotLike('email',['xiao%','wu%'])->select();
+    return Db::getLastSql();
+    Db::name('user')->whereNotLike('email',['xiao%','wu%','or'])->select();
+    return Db::getLastSql();
+    ```
+    结果:
+    ```sql
+    SELECT * FROM `tp_user` WHERE (`email` LIKE 'xiao%' AND `email` LIKE 'wu%')
+    SELECT * FROM `tp_user` WHERE (`email` LIKE 'xiao%' OR `email` LIKE 'wu%')
+    SELECT * FROM `tp_user` WHERE (`email` NOT LIKE 'xiao%' AND `email` NOT LIKE 'wu%')
+    SELECT * FROM `tp_user` WHERE (`email` NOT LIKE 'xiao%' OR `email` NOT LIKE 'wu%')
+    ```
+    1. like表达式具有两个快捷方式whereBetween()和whereNotBetween();
+    ```php
+    Db::name('user')->where('id','between','10,25')->select();
+    Db::name('user')->where('id','between',[19,25])->select();
+    Db::name('user')->whereBetween('id',[19,25])->select();
+    Db::name('user')->whereNotBetween('id',[19,25])->select();
+
+    ```
+    结果:
+    ```SQL
+    SELECT * FROM `tp_user` WHERE `id` BETWEEN 10 AND 25
+    SELECT * FROM `tp_user` WHERE `id` BETWEEN 19 AND 25
+    SELECT * FROM `tp_user` WHERE `id` BETWEEN 19 AND 25
+    SELECT * FROM `tp_user` WHERE `id` NOT BETWEEN 19 AND 25
+    ```
+
+1. exp查询    
+    1. 使用exp可以自定义字段后的SQL语句:
+    ```php
+    Db::name('user')->where('id','exp','IN(19,21,25)')->select();
+    return Db::getLastSql
+    ```
+    结果:    
+    ```SQL
+    SELECT * FROM `tp_user` WHERE ( `id` IN(19,21,25) )
+    ```
+    或者使用whereExp()表达式:
+    ```php
+    Db::name('user')->whereExp('id','IN(19,21,25)')->select();
+    return Db::getLastSql
+    ```
+1. 时间查询
+    1. 传统查询
+        - 使用 > < >= <= 来筛选匹配时间的数据
+        ```php
+        $user = Db::name('user')->where('create_time','>','2018-1-1')->select();
+        dump($user);
+        return Db::getLastSql()
+        ```
+        结果:    
+        ![时间1-1](./log_images/datetime_1_1.png)
+        - 使用between关键字来查询
+        ```php
+        $user = Db::name('user')->where('create_time','between',['2019-1-1','2019-12-31'])->select();
+        dump($user);
+        return Db::getLastSql()
+        ```
+        结果:    
+        ![时间2-1](./log_images/datetime_2_1.png)
+        ```php
+        $user = Db::name('user')->where('create_time','not between',['2019-1-1','2019-12-31'])->select();
+        dump($user);
+        return Db::getLastSql()
+        ```
+        结果:    
+        ![时间2-2](./log_images/datetime_2_2.png)    
+    1. 快捷查询    
+        - whereTime()查询时间,可以使用> < >= <=    
+        ```php
+        Db::name('user')->whereTime('create_time','>','2018-1-1')->select();
+        ```
+        - 时间查询也可以使用between和not between:
+        ```php
+        Db::name('user')->whereBetween('create_time',['2019-1-1','2019-12-31'])->select();
+        ```
+        - 还可以使用whereBetweenTime()和whereNotBetweenTime():
+        ```php
+        Db::name('user')->whereBetweenTime('create_time',2019-1-1','2019-12-31')->select();
+        ```
+    1. 固定查询
+        -  查询某年数据
+        ```php
+        //今年
+        Db::name('user')->whereYear('create_time')->select();
+        //去年
+        Db::name('user')->whereYear('create_time','last year')->select();
+        //某年
+        Db::name('user')->whereYear('create_time','2016')->select();
+        ```
+        结果:    
+        ![whereYear](./log_images/whereyear.png)
+        - 查询某月数据
+        ```php
+        //当月
+        Db::name('user')->whereMonth('create_time')->select();
+        //上月
+        Db::name('user')->whereMonth('create_time','last month')->select();
+        //某月
+        Db::name('user')->whereMonth('create_time','2016-10')->select();
+        ```
+        - 查询某gd 数据
+        ```php
+        //今天
+        Db::name('user')->whereDay('create_time')->select();
+        //昨天
+        Db::name('user')->whereDay('create_time','last day')->select();
+        //某天
+        Db::name('user')->whereDay('create_time','2016-10-12')->select();
+        ```
+    1. 其它查询
+        - 查询指定时间的数据:    
+        ```php
+        //两小时以内
+        Db::name('user')->whereTime('create_time','-2 hours')->select()
+        ```
+        结果:    
+        ![whereTime](./log_images/whereTime.png)
+        - 查询两个时间字段内的数据:
+        ```php
+        Db::name('user')->whereBetweenTimeField('start_time','end_time')->select()
+        ```
+        结果:    
+        ![whereBetweenTimeField](./log_images/whereBetweenTimeField.png)
+1. 聚合 原生 子查询
+    1. 聚合查询
+        - 使用count()方法,可以求出数据的数量
+        ```php
+        Db::name('user')->count();
+        ```
+        count()可以指定字段,比如有宿舍的uid,不会计算数量
+        ```php
+        Db::name('user')->count('uid');
+        ```
+        - 使用max()/min()方法,可以救出字段最大/最小值
+        ```php
+        Db::name('user')->max('price');
+        Db::name('user')->min('price');
+        ```
+        如果字段为真数值,可以使用false参数进行强制转换
+        ```php
+        Db::name('user')->max('email',false);
+        Db::name('user')->min('email',false);
+        ```
+        - 使用avg()方法,可以求出数据的平均值
+        ```php
+        Db::name('user')->avg('price');
+        ```
+        - 使用sum()方法,可以求出数据的总和
+        ```php
+        Db::name('user')->sum('price');
+        ```
+    1. 子查询
+        - 基础知识    
+        fetchsql()方法,可以设置不执行SQL,而返回SQL语句,默认为true:    
+        ```php
+        Db::name('user')->fetchSql()->select();
+        ```
+        结果:    
+        ```SQL
+        SELECT * FROM `tp_user`;
+        ```
+        buildsql()方法,直接返回SQL语句,不需要执行select(),并且封闭了括号和双引号:
+        ```php
+        Db::name('user')->buildSql();
+        ```
+        结果:    
+        ```SQL
+        ( SELECT * FROM `tp_user` )
+        ```
+        - 子查询的实现
+        ```php
+        $sql = Db::name('two')->field('uid')->where('gender','男')->buildSql();
+        $res = Db::name('one')->where('id','exp','IN'.$sql)->select();
+        return Db::getLastSql();
+        ```
+        结果:    
+        ![subsql](./log_images/subsql.png)
+        也可以使用闭包方式执行子查询
+        ```php
+        $res = Db::name('one')->where('id','in',function($query){
+            $query->name('two')->where('gender','男')->field('id');
+        })->select();
+        ```
+    1. 原生查询
+        - query()方法,可以进行原生查询,适用于读取操作,SQL错误返回false:
+        ```php
+        Db::query('select * from tp_user');
+        ```
+        - execute()方法,可以进行原生SQL更新写入等操作,错误返回false;
+        ```php
+        Db::execute('insert into tp_user(username,password,email,price,details) values("testuser","2222","2222@localhsot",20,"????")');
+        ```
+### 链式查询方法
+1. where()
+    - 基础查询
+    ```php
+    Db::name('user')->where('id','>',70)->select();
+    ```
+    - 关联数据查询     
+    通过键值对匹配
+    ```php
+    Db::name('user')->where([
+        'gender' => '男',
+        'price' => 100
+    ])->select();
+    ```
+    结果:    
+    ![where_01](./log_images/where_01.png)
+    - 索引数组查询
+    通过数组里的数组拼装方式查询
+    ```php
+    Db::name('user')->where([
+        'gender','=','男',
+        'price','=','100'
+    ])->select();
+    ```
+    结果:    
+    ![where_01](./log_images/where_01.png)
+    - 数组变量查询
+    把复杂数组组装后,通过传递变量查询    
+    ```php
+        $map[]=['gender','=','男'];
+        $map[]=['price','in',[60,70,80]];
+        $map[]=['status','>=',0];
+        $res = Db::name('user')->where($map)->select(); 
+        dump ($res);
+        return Db::getLastSql();
+    ```
+    结果:    
+    ![where_02](./log_images/where_02.png)
+    - 字符串参数查询
+    whereRaw()可以使用字符串进行类似原生where的查询
+    ```php
+    Db::name('user')->whereRaw('gender="男" AND price IN (60,70,80)')->select();
+    ```
+    whereRaw()可以使用预处理模式:
+    ```php
+    Db::name('user')->whereRaw('id=:id',['id'=>19])->select();
+    ```
+1. field()
+    - field()可以指定要查询的字段    
+    ```php
+    Db::name('user')->field('id,username,email')->select();
+    Db::name('user')->field(['id','username','email'])->select();
+    ```
+    - fiels()可以给指定的字段设置别名
+    ```php
+    Db::name('user')->field('id,username as name,email')->select();
+    Db::name('user')->field(['id','username'=>'name','email'])->select();
+    ```
+    结果:    
+    ![field](./log_images/field.png)
+
+
+
+
 
 

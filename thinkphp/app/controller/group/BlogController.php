@@ -108,4 +108,25 @@ class BlogController extends BaseController{
         $user = User::select();
         return json($user);
     }
+    public function search(){
+        $user =  Db::name('user')->whereBetweenTimeField('start_time','end_time')->select();
+        dump($user); 
+        echo Db::getLastSql();
+    }
+    public function count(){
+        //return Db::name('user')->buildSql(true); 
+/*        $sql = Db::name('two')->field('uid')->where('gender','男')->buildSql();*/
+        /*$res = Db::name('one')->where('id','exp','IN'.$sql)->select();*/
+
+        //$res = Db::name('user')->where([
+            //'gender' => '男',
+            //'price' => 100
+        //])->select(); 
+        $map[]=['gender','=','男'];
+        $map[]=['price','in',[60,70,80]];
+        $map[]=['status','>=',0];
+        $res = Db::name('user')->field(['id','username'=>'name','email'])->select(); 
+        dump ($res);
+        return Db::getLastSql();
+    }
 }
