@@ -122,11 +122,37 @@ class BlogController extends BaseController{
             //'gender' => '男',
             //'price' => 100
         //])->select(); 
-        $map[]=['gender','=','男'];
-        $map[]=['price','in',[60,70,80]];
-        $map[]=['status','>=',0];
-        $res = Db::name('user')->field(['id','username'=>'name','email'])->select(); 
+        //$map[]=['gender','=','男'];
+        //$map[]=['price','in',[60,70,80]];
+        //$map[]=['status','>=',0];
+        //$res = Db::name('user')->field(['id','username'=>'name','email'])->select(); 
+        //$data = [
+          //'username' => '萨尔',
+          //'password' => '123',
+          //'gender' => '女',
+          //'price' => 90,
+          //'email' => 'thrall@localhost',
+          //'details' => 'Lok\'tar ogar',
+          //'age' => 10,
+        //];
+        //$res = Db::name('user')->field('username,email,details,password,gender,price')->insert($data);
+        //$res = Db::name('user')->field(true)->select(); 
+        //$res = Db::name('user')->withoutField('price,gender,create_time,update_time,start_time,end_time,delete_time')->select();
+        $res = Db::name('user')->alias('a')->field(true)->select();
         dump ($res);
+        return Db::getLastSql();
+    }
+    public function page(){
+        //$user = Db::name('user')->limit(0,5)->select();
+        //dump ($user);
+        //$user = Db::name('user')->limit(5,5)->select();
+        //dump ($user);
+        //$user = Db::name('user')->page(1,5)->select();
+        //dump ($user);
+        //$user = Db::name('user')->page(2,5)->select();
+        //dump ($user);
+        $user = Db::name('user')->fieldRaw('gender,SUM(price) as sum')->group('gender')->having('gender = "女"')->select();
+        dump($user);
         return Db::getLastSql();
     }
 }

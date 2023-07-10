@@ -683,6 +683,7 @@ class BlogController extends BaseController{
         ```php
         Db::execute('insert into tp_user(username,password,email,price,details) values("testuser","2222","2222@localhsot",20,"????")');
         ```
+
 ### 链式查询方法
 1. where()
     - 基础查询
@@ -743,9 +744,91 @@ class BlogController extends BaseController{
     ```
     结果:    
     ![field](./log_images/field.png)
+    - fieldRaw()方法可以直接给字段设置Mysql函数
+    ```php
+    Db::name('user')->fieldRaw('id,SUM(price)')->select();
+    ```
+    - field(true)可以显式的查询所有字段,而不是*
+    ```php
+    Db::name('user')->field(true)->select();
+    ```
+    - withoutField()可以排除某个字段
+    ```php
+    Db::name('user')->withoutField('price,start_time,end_time')->select()
+    ```
+    - field()方法在新增数据时,可以验证字段的合法性
+    ```php
+    $data = [
+      'username' => '萨尔',
+      'password' => '123',
+      'gender' => '女',
+      'price' => 90,
+      'email' => 'thrall@localhost',
+      'details' => 'Lok\'tar ogar',
+      'age' => 19
+    ];
+    $res = Db::name('user')->field('username,email,details')->insert($data);
+    ```
+    结果:    
+    ![field_2](./log_images/field_2.png)
 
+1. alias
+    - alias()方法可以给数据库起一个别名
+    ```php
+    Db::name('user')->alias('a')->select();
+    ```
+1. limit
+    - limit()方法用于限制获取数据的人数
+    ```php
+    Db::name('user')->limit(5)->select();
+    ```
+    - 传递两个参数可以实现分页查询,例如从第3条开始显示5个记录limit(2,5)
+    ```php
+    Db::name('user')->limit(2,5)->select();
+    ```
+    - 分布显示需要严格计算每页条数及从第几条开始
+    ```php
+    // 第一页
+    Db::name('user')->limit(0,5)->select();
+    // 第二页
+    Db::name('user')->limit(5,5)->select();
+    ```
+1. page
+    - page()方法,优化了limit()方法,不需要计算分页条数
+    ```php
+    // 第一页
+    Db::name('user')->page(1,5)->select();
+    // 第二页
+    Db::name('user')->page(2,5)->select();
+    ```
+1. order
+    - order(*)方法可以指定排序方式,第二个参数默认asc
+    ```php
+    Db::name('user')->order('id','desc')->select();
+    ```
+    - 可以使用数组对多个字段进行排序
+    ```php
+    Db::name('user')->order([
+        'create_time' => 'desc',
+        'price' => 'asc'
+    ])->select();
+    ```
+    - 使用orderRaw()方法可以在排序的时候指定Mysql函数
+    ```php
+    Db::name('user')->orderRaw('FIELD(username,"樱桃小丸子") DESC')->select();
+    ```
+1. group 
+    - group()方法,例:给不同性别的人进行price字段的总和统计
+    ```php
+    Db::name('user')->fieldRaw('gender',SUM(price))->group('gender')->select();
+    ```
+1. having
+    group分组后,可以使用having进行筛选
+    ```php
+    Db::name('user')->fieldRaw('gender,SUM(price) as sum')->group('gender')->having('sum > 500')->select();
+    ```
 
-
+### 数据库的高级查询
 
 
 
