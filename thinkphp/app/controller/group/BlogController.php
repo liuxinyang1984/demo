@@ -151,7 +151,66 @@ class BlogController extends BaseController{
         //dump ($user);
         //$user = Db::name('user')->page(2,5)->select();
         //dump ($user);
-        $user = Db::name('user')->fieldRaw('gender,SUM(price) as sum')->group('gender')->having('gender = "女"')->select();
+        //$user = Db::name('user')
+            //->where('username|email','like','xiao%')
+            //->where('price&uid','>',0)
+            //->select();
+        //dump($user);
+        //return Db::getLastSql();
+        //$user = Db::name('user')->where([
+         //['id','>',0],
+         //['status','=','1'],
+         //['price','>=',80],
+         //['email','like','%163%']
+        //])->select();
+
+
+        //$map = [
+            //['id','>',0],
+            //['price','>=',80],
+            //['email','like','%163%']
+        //];
+        //$user =  Db::name('user')
+         //->where([$map])
+         //->where('status',1)
+         //->select();
+        //dump($user);
+        //return Db::getLastSql();
+        //
+
+        //$map1 = [
+             //['username','like','%小%'],
+             //['email','like','%163%']
+        //];
+        //$map2 = [
+             //['username','like','%孙%'],
+             //['email','like','%.com']
+        //];
+        //$user = Db::name('user')
+             //->whereOr([$map1,$map2])
+             //->select();
+
+        //$user = Db::name('user')
+            //->where(function($query){
+                //$query->where('id','>',0);
+            //})
+            //->where(function($query){
+                //$query->where('status > 0');
+            //})
+            //->whereOr('username','like','%小%')
+            //->select();
+        $user = Db::name('user')
+             ->whereRaw('(username LIKE "%小%" AND email LIKE "%163%") OR (price > 80)')
+             ->select();
+        dump($user);
+        return Db::getLastSql();
+    }
+    public function speedy(){
+        //$user =  Db::name('user')
+            //->whereColumn('update_time','>=','create_time')
+            //->select();
+        //$user = Db::name('user')->wherePassword('123')->select();
+        $user =  Db::name('user')->whereCreateTime('2016-06-27 16:45:26')->select();
         dump($user);
         return Db::getLastSql();
     }

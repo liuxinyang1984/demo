@@ -818,7 +818,7 @@ class BlogController extends BaseController{
     Db::name('user')->orderRaw('FIELD(username,"樱桃小丸子") DESC')->select();
     ```
 1. group 
-    - group()方法,例:给不同性别的人进行price字段的总和统计
+    group()方法,例:给不同性别的人进行price字段的总和统计
     ```php
     Db::name('user')->fieldRaw('gender',SUM(price))->group('gender')->select();
     ```
@@ -830,5 +830,157 @@ class BlogController extends BaseController{
 
 ### 数据库的高级查询
 
+1. 使用|(or)或者&(AND)来实现where条件的高级查询
+    ```php
+    $user = Db::name('user')
+        ->where('username|email','like','xiao%')
+        ->where('price&uid','>',0)
+        ->select();
+    dump($user);
+    Db::getLastSql();
+    ```
+    结果:    
+    ![where_or_and](./log_images/where_or_and.png)
 
+1. 关联数组可以在where进行多个字段进行查询
+    ```php
+    $user = Db::name('user')->where([
+        ['id','>',0],
+        ['status','=','1'],
+        ['price','>=',80],
+        ['email','like','%163%']
+    ])->select();
+    dump($user);
+    return Db::getLastSql();
+    ```
+    结果:    
+    ![where_array](./log_images/where_array.png)
+    如果使用exp关键字,需要使用raw()方法
+    ```php
+    $user = Db::name('user')->where([
+        ['id','>',0],
+        ['status','=','1'],
+        ['price','exp',Db::raw('>80')],
+        ['email','like','%163%']
+    ])->select();
+    dump($user);
+    return Db::getLastSql();
+    ```
+    结果:    
+    ![where_array_exp](./log_images/where_array_exp.png)
+1. 当where条件为$map数组,并且要用第2个where去匹配前面的结果的话,要注意为$map数组加上中括号.    
+修改前:    
+    ```php
+    $map = [
+        ['id','>',0],
+        ['price','>=',80],
+        ['email','like','%163%']
+    ];
+    $user =  Db::name('user')
+        ->where($map)
+        ->where('status',1)
+        ->select();
+    ```
+    结果:    
+    ![where_map_1](./log_images/where_map_1.png)    
+    修改后:    
+    ```php
+    $map = [
+        ['id','>',0],
+        ['price','>=',80],
+        ['email','like','%163%']
+    ];
+    $user =  Db::name('user')
+        ->where([$map])
+        ->where('status',1)
+        ->select();
+    ```
+    结果:    
+    ![where_map_2](./log_images/where_map_2.png)    
 
+1. 多个条件数组并且需要OR来筛选,可以用whereOr()
+    ```php
+    $map1 = [
+        ['username','like','%小%'],
+        ['email','like','%163%']
+    ];
+    $map2 = [
+        ['username','like','%孙%'],
+        ['email','like','%.com']
+    ];
+    $user = Db::name('user')
+        ->whereOr([$map1,$map2])
+        ->select();
+    dump($user);
+    return Db::getLastSql();
+    ```
+    结果:    
+    ![whereor_array](./log_images/whereor_array.png)
+
+1. 闭包查询可以连缀,如果是or查询请使用whereor()
+    ```php
+    $user = Db::name('user')
+        ->where(function($query){
+            $query->where('id','>',0);
+        })
+        ->where(function($query){
+            $query->where('status > 0');
+        })
+        ->whereOr('username','like','%小%')
+        ->select();
+    dump($user);
+    return Db::getLastSql();
+    ```
+1. 对于比较复杂的SQL,__where__条件可以直接使用whereRaw()方法
+    ```php
+    $user = Db::name('user')
+        ->whereRaw('(username LIKE "%小%" AND email LIKE "%163%") OR (price > 80)')
+        ->select();
+    dump($user);
+    return Db::getLastSql();
+    ```
+
+### 数据库的快捷查询
+1. 框架封装了很多where方法,全部如下:
+| 方法            | 解释                 |
+|-----------------|----------------------|
+| whereOr         | 字段的OR查询         |
+| whereXor        | 字段的Xor查询        |
+| whereNull       | 查询字段是否为null   |
+| whereNotNull    | 查询字段是否不为null |
+| whereIn         | 字段IN查询           |
+| whereNotIn      | 字段NOT IN查询       |
+| whereBetween    | 字段BETWEEN查询      |
+| whereNotBetween | 字段NOT BETWEEN查询  |
+| whereLike       | 字段LIKE查询         |
+| whereNotLike    | 字段NOT LIKE查询     |
+| whereExists     | EXISTS条件查询       |
+| whereNotExists  | NOT EXISTS条件查询   |
+| whereExp        | 表达式查询           |
+| whereColumn     | 比较两个字段         |
+
+1. whereColumn()方法
+    比较两个字段的值    
+    ```php
+    $user = Db::name('user')
+        ->whereColumn('update_time','>=','create_time')
+        ->select();
+
+    //时间比较可以省略默认'>='操作符
+    $user = Db::name('user')
+        ->whereColumn('update_time','create_time')
+        ->select();
+    ```
+    结果:     
+    ![whereColumn](./log_images/whereColumn.png)
+1. whereFieldName()方法,查询某个字段的值(FieldName为字段名!!)
+    ```php
+    Db::name('user')->whereEmail('xiaoxin@163.com')->find();
+    Db::name('user')->wherePassword('123')->select();
+    //下划线字段要采用驼峰式写法,比如create_time
+    Db::name('user')->whereCreateTime('2016-06-27 16:45:26')->select();
+    ```
+1. getByFieldName()方法,查询某个字段的值.__该方法只能查询一条,不需要find()方法__.
+    ```php
+    Db::name('user')->getByEmail('xiaoxin@163.com');
+    ```
