@@ -984,3 +984,68 @@ class BlogController extends BaseController{
     ```php
     Db::name('user')->getByEmail('xiaoxin@163.com');
     ```
+ 
+### 数据库事务
+1. 事务处理
+    - 自动处理
+        ```php
+        Db::transaction(function(){
+            Db::name('user')->where('id',19)->save(['price'=>DbRaw('price -3')]);
+            Db::name('user')->where('id',20)->save(['price'=>DbRaw('price +3')]);
+        });
+        ```
+    - 手动处理
+        ```php
+        Db::startTrans();
+        try{
+            Db::name('user')->where('id',19)->save(['price'=>Db::raw('price -3')]);
+            Db::name('user')->where('id',20)->save(['price'=>Db::raw('price +3')]);
+            Db::commit();
+        }catch(\Exception $e){
+            echo "事务执行失败!";
+            Db::rollback();
+        }
+
+        ```
+### 获取器    
+    在获取数据列表的时候,对获取的字段进行处理
+    ```php
+    //withAttr两个参数,第一个为要处理的字段名,第二个参数为要处理的匿名函数
+    //匿名函数有两个实参,第一个为所处理的字段数据,第一个是所处理的一行数据
+    //匿名函数返回为处理过的字段数据
+    $user = Db::name('user')->withAttr('email',function($value,$data){
+        return strtoupper($value);
+    })->select();
+    ```
+### 数据集
+    数据库查询后如果不加方法的话,返回的是一个collection数据集对象,那么可以对这个数据集对象进行处理,比如常见的toArray()等,具体方法可以查看手册.
+
+## 模型
+### 模型的定义
+1. 模型的名称和数据库表名匹配,模型会自动对应数据表.
+    ```php
+    use think\model;
+    class User extends Model{}
+    ```
+1. 模型类需要去除表前缀(tp_),采用帕斯卡命名法
+    - tp_user => User
+    - tp_user_type => UserType
+1. 如果要设置应用类后缀,比如UserModel
+    1. 更改文件名和类名
+    1. 设置$name私有属性为表名
+
+    ```php
+    //UserModel.php
+    class UserModel extends model{
+        protected $name = 'user';
+    }
+    ```
+### 模型的设置
+1. 避免类名重复,可以设置别名
+```php
+use app\model\User as UserModel;
+```
+1. 在模型中可以设置其它的数据表
+
+
+    
