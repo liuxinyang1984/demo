@@ -59,5 +59,8 @@ return [
         ],
 
         // 更多的数据库配置信息
+        'params' => [
+            PDO::ATTR_TIMEOUT => 300,
+        ],
     ],
 ];

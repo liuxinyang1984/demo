@@ -1040,12 +1040,118 @@ class BlogController extends BaseController{
         protected $name = 'user';
     }
     ```
+
 ### 模型的设置
 1. 避免类名重复,可以设置别名
 ```php
 use app\model\User as UserModel;
 ```
 1. 在模型中可以设置其它的数据表
+```php
+protected $table = 'tp_one';
+```
+1. 模型可以初始化,只需要设置init静态方法
+
+```php
+protected static function init(){
+    //第一次实例化后执行
+    echo "初始化xxx模型";
+}
+```
+### 模型的CURD
+
+#### 新增
+1. 实例化方式新增
+    - 创建一个Model对象
+    ```php
+    $user = new UserModel();
+    //或者
+    $user = new \app\model\User();
+    ```
+    - 新增一条数据    
+    实例化对象后,可以用两种方式新增数据
+        1. 设置对象属性新增
+        ```php
+        $user->username = '地狱咆哮';
+        $user->password = '123';
+        $user->gender   = '男';
+        $user->email    = 'dypx@163.com';
+        $user->price    = 100;
+        $user->details  = '那叫一个帅';
+        $user->uid      = 10010;
+        $user ->save();
+        ```
+        1. 传递数组新增
+        ```php
+        $data = [
+            'username' => '小地狱咆哮',
+            'password' => '123',
+            'gender'   => '男',
+            'email'    => 'dypx@163.com',
+            'price'    => 100,
+            'details'  => '那叫一个帅',
+            'uid'      => 10010,
+        ];
+        $user -> save($data);
+        ```
+    - 添加allowField()方法,可以过滤写入参数,但如果有字段未填写并且字段没有默认值会异常
+    ```php
+    $user = new User();
+    $user->username = '不地狱咆哮';
+    $user->password = '123';
+    $user->gender   = '男';
+    $user->email    = 'dypx@163.com';
+    $user->price    = 100;
+    $user->details  = '那叫一个帅';
+    $user->uid      = 10010;           
+    $user->allowField(['username','password'])->save(); 
+
+    $data=[
+        'username' => '老地狱咆哮',
+        'password' => '123',
+        'gender'   => '男',
+        'email'    => 'dypx@163.com',
+        'price'    => 100,
+        'details'  => '那叫一个帅',
+        'uid'      => 10010,
+    ];
+    $user ->allowField(['username','password','details'])->save($data);
+    ```
+    - 通过replace()方法可以实现 replace info
+    ```php
+    $user->replace()->save(...);
+    ```
+    - 新增成功后,可以用$user->id来获得ID
+    ```php
+    echo $user->id;
+    ```
+    - 使用savaAll()方法,可以指新增数据,返回一个新增的数组
+    ```php
+    $data=[
+        [
+            'username' => 'MINI地狱咆哮1',
+            'password' => '123',
+            'gender'   => '男',
+            'email'    => 'dypx@163.com',
+            'price'    => 100,
+            'details'  => '那叫一个帅',
+            'uid'      => 10010,
+        ],
+        [
+            'username' => 'MINI地狱咆哮2',
+            'password' => '123',
+            'gender'   => '男',
+            'email'    => 'dypx@163.com',
+            'price'    => 100,
+            'details'  => '那叫一个帅',
+            'uid'      => 10010,
+        ]
+    ];
+    $user ->saveAll($data);
+    ```
+1. 静态方法新增
+
+
 
 
     
