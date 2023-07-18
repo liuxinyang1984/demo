@@ -19,26 +19,42 @@ class TestController extends BaseController{
         //$user->uid      = 10010;           
         //$user->allowField(['username','password'])->save(); 
 
-        $data=[
-            [
-                'username' => 'MINI地狱咆哮1',
-                'password' => '123',
-                'gender'   => '男',
-                'email'    => 'dypx@163.com',
-                'price'    => 100,
-                'details'  => '那叫一个帅',
-                'uid'      => 10010,
-            ],
-            [
-                'username' => 'MINI地狱咆哮2',
-                'password' => '123',
-                'gender'   => '男',
-                'email'    => 'dypx@163.com',
-                'price'    => 100,
-                'details'  => '那叫一个帅',
-                'uid'      => 10010,
-            ]
-        ];
-        $user ->saveAll($data);
+        //$data=[
+            //[
+                //'username' => 'MINI地狱咆哮1',
+                //'password' => '123',
+                //'gender'   => '男',
+                //'email'    => 'dypx@163.com',
+                //'price'    => 100,
+                //'details'  => '那叫一个帅',
+                //'uid'      => 10010,
+            //],
+            //[
+                //'username' => 'MINI地狱咆哮2',
+                //'password' => '123',
+                //'gender'   => '男',
+                //'email'    => 'dypx@163.com',
+                //'price'    => 100,
+                //'details'  => '那叫一个帅',
+                //'uid'      => 10010,
+            //]
+        //];
+        //$user ->saveAll($data);
+        $user  = User::create([
+            'username' => 'MINI地狱咆哮3',
+            'password' => '123',
+            'gender'   => '男',
+            'email'    => 'dypx@163.com',
+            'price'    => 100,
+            'details'  => '那叫一个帅',
+            'uid'      => 10010,
+        ],
+        [
+            'username',
+            'password',
+            'details'
+        ],
+        false);
+        echo $user->id;
     }
 }

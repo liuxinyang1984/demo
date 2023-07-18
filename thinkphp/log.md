@@ -1150,6 +1150,28 @@ protected static function init(){
     $user ->saveAll($data);
     ```
 1. 静态方法新增
+```php
+//参数1:新增数据数组
+//参数2:过滤字段数组
+//参数3:是否replace写入,默认为false
+$user  = User::create([
+    'username' => 'MINI地狱咆哮3',
+    'password' => '123',
+    'gender'   => '男',
+    'email'    => 'dypx@163.com',
+    'price'    => 100,
+    'details'  => '那叫一个帅',
+    'uid'      => 10010,
+],
+[
+    'username',
+    'password',
+    'details'
+],
+false);
+echo $user->id;
+```
+
 
 
 
