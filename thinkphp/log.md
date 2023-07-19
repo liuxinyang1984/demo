@@ -1059,8 +1059,8 @@ protected static function init(){
 }
 ```
 ### 模型的CURD
-
-#### 新增
+模型的增和改都是save()方法执行的,会自动识别数据来完成.实例化模型后,调用sava()方法就是新增,在查询后再save()或者传入主键就是修改.
+#### 增(Create)
 1. 实例化方式新增
     - 创建一个Model对象
     ```php
@@ -1172,8 +1172,268 @@ false);
 echo $user->id;
 ```
 
+#### 删(Delete)
+1. Model对象查找删除
+    1. find()方法查询到数据
+    ```php
+    $user = User::find(310);
+    ```
+    1. delect()方法删除
+    ```php
+    $user->delete();
+    ```
+1. Model对象静态方法删除
+    1. 使用destroy()方法,通过主键删除
+    ```php
+    User::destroy(308);
+    ```
+    1. 使用destroy()方法,可以批量删除
+    ```php
+    User::destroy([100,101,102]);
+    ```
+    1. 使用destroy()方法,可以闭包删除
+    ```php
+    User::destroy(function($query){
+        $query->where('id','>','80');
+    });
+    ```
+1. Model对象通过where查询删除
+```php
+User::where('id','>','80')->delete();
+```
 
+#### 改(Update) 
+1. 通过find()方法查找修改
+```php    
+$user = User::find(308);
+$user->username = '洋嫂嫂';
+$user->email = 'mrscookie@localhost';
+$user->save();
+```
+1. 通过where()方法查询修改
+```php
+$user = User::where('username','like','%地狱咆哮%')->find();
+$user->username = '哪个地狱咆哮';
+$user->save();
+```
+1. 通过force()方法强制更新    
+save()方法如果提交的数据没有变化不会更新,想要强制更新数据,可以使用force()方法
+```php
+$user->force()->save();
+```
+1. 数据更新同样支持SQL函数方式
+```php
+$user->price = Db::raw('price+1');
+```
+1. 通过allowField()方法过滤更新字段
+```php
+$user->allowField(['username','email'])->save(...);
+```
+1. 通过saveAll()方法可以指修改数据    
+saveAll()方法,只能通过主键id进行更新,返回被修改的数据集合.
+```php
+$dataList = [
+    ['id'=>315,'username'=>'兽人1号'],
+    ['id'=>316,'username'=>'兽人2号'],
+    ['id'=>317,'username'=>'兽人3号'],
+    ['id'=>318,'username'=>'兽人4号'],
+    ['id'=>319,'username'=>'兽人5号'],
+];
+$user->allowField(['username','email'])->save($dataList);
+```
+1. 通过静态方法::update()方法更新,返回对象实例
+    1. 通过一个含有主键的数组更新
+    ```php
+    User::update([
+        'id' => 314,
+        'username' => '那我就叫update'
+    ]);
+    ```
+    1. 通过第二个参数传递主键
+    ```php
+    User::update([
+        'username' => '那我就叫update',
+        'email' => 'update@localhost'
+    ],
+    ['id' => 314]
+    );
+    ```
+    1. 通过第三个参数,来过滤数组
+    ```php
+    User::update([
+        'username' => '这次只更新了用户名',
+        'email' => 'dontupdate@localhost'
+    ],
+    ['id' => 314],['username']
+    );
+    ```
 
+#### 查(Retrieve)
+1. 通过find()方法,查询单条数据
+    - 通过主键查询
+    ```php
+    $user = User::find(129);
+    return json($user);
+    ```
+    - 通过where()条件查询
+    ```php
+    $user = User::where('username','兽人1号')->find();
+    return json($user);
+    ```
+1. 通过findOrEmpty()方法查询
+find()查询如果数据不存在时返回Null,使用findOrEmpty,如果数据不存在返回空模型.此时可以用isEmpty()来判断是否为空.    
+```php
+$user = User::findOrEmpty(1111);
+if($user->isEmpty()){
+    echo "数据不存在";
+}
+```
+1. 通过select()方法,查询多少数据
+```php
+$user = User::select([315,316,317])；
+return json($user);
+```
+1. 查询方法可以使用where()等方法链式查询
+1. 通过value()和column()获取某个字段或者列
+```php
+//查询单条数据的字段
+User::where('id',315)->value('username');
+//查询多条数据的列
+//第一个参数为需要查询的列,第二个参数为键名
+User::whereIn('id',[315,316,317])->column('username','id')
+```
+1. 通过getByXxx动态查询,Xxx表示字段名,只能支持单数据查询
+```php
+User::getByUsername('兽人1号');
+```
+1. 通过max()、min()、sum()、count()、avg()等方法聚合查询
+```php
+User::max('price');
+```
+1. 通过check()方法分批查询
+```php
+User::chunk(5,function($user){
+    foreach($users as $user){
+        echo $user->username."<br>";
+    }
+    echo '<hr>'；
+});
+```
+1. 通过cursor()方法进行游标查询 
+```php
+$cusor = User::cursor();
+foreach($corsor as $user){
+    echo $user->username;
+}
+```
 
+### 模型的字段设置
+模型的数据字段和表字段是对应的,默认会自动获取,包括字段的类型,每次获取都会执行一次查询,如果在模型中配置字段信息,会减少不必要的内存开销
+1. 设置模型的$schema字段,可以自定义字段信息
+```php
+protected $schema = [
+    'id' => 'int',
+    'username' => 'string',
+    'status' => 'int',
+    'email' => 'string'
+];
+```
+### 模型的获取器和修改器
+#### 获取器
+获取器的作用是对模型实例的数据做出处理,获取器对应模型的一个特殊public方法,命名规范为getXxxxAttr().
+1. 获取已有字段    
+获取User模型的status字段(int),然后输出为中文字符
+```php
+// 模型文件
+public function getStatusAttr($value){
+    $status = [-1 =>'删除',0=>'禁用',1=>'正常',2=>'待审核'];
+    return $status[$value];
+}
+// 控制器文件
+$user = User::find(19);
+return $user->status;
+```
+1. 获取虚拟字段
+```php
+// 模型文件
+//第二个参数为查询对象,类型为数组
+public function getLevAttr($value,$arr){
+    if($arr['price']>50){
+        return '大款';
+    }else{
+        return '屁民';
+    }
+}
+// 控制器文件
+$user = User::find(19);
+return $user->lev;
+```
+1. 设置了获取器以后,想要得到原始结果可以用getData()方法
+    - 获取status原生数据
+    ```php
+    // 控制器文件
+    $user = User::find(19);
+    return $user->getData('status');
+    ```
+    - 获取模型原始数据
+    ```php
+    // 控制器文件
+    $user = User::find(19);
+    return json($user->getData());
+    ```
+1. 在控制器端可以使用withAttr()实现动态获取器
+```php
+// 注意: 新版本提示WithAttr不是一个静态方法,所以不可以像示例一样加在模型的后面    
+//       只能在find()或者select()以后,返回一个对象之后使用
+$userList = User::select()->WithAttr('status',function($val){
+    $arr = [-1 =>'删除',0=>'禁用',1=>'正常',2=>'待审核'];
+    if(isset($arr[$val])){
+        return $arr[$val];
+    }else{
+        return '错误的状态值';
+    }
+});
+foreach($userList as $user){
+    echo $user->username.'=>'.$user->status.'<br>';
+}
+```
+__注意:__    
+> 如果同时定义了模型获取器和控制器动态获取器,那么动态获取器的优先级更高    
 
-    
+#### 模型修改器    
+模型修改器的作用是对模型设置对象的值进行处理,在数据进行新增和修改的时候会触发修改器,命名规则为setXxxxAttr()
+```php
+//新增或者修改数据时把邮箱改为大写
+public function setEmailAttr($val){
+    return strtoupper($val);
+}
+```
+### 模型的查询范围
+查询范围是模型的查询或者写入方法的封闭,方便控制器端调用.命名规则为scopeXxxx(),xxxx调用时直接作为参数使用.    
+1. 普通查询
+例如,要查询性别为男的用户:
+```php
+// 模型
+public function scopeMale($queryObj){
+    return $queryObj->where('gender','男')->field('id,username,gender,email');
+}
+// 控制器
+public function scope(){
+    // 方法1
+    $res = User::scope('male')->select()->toArray();
+    // 方法2
+    $res = User::male()->select()->toArray();
+    dump($res);
+}
+```
+1. 传参查询
+```php
+// 模型
+public function scopeEmail($queryObj,$val){
+    $queryObj->where('email','like','%'.$val.'%');
+}
+// 控制器
+$res = User::email('xiao')->select();
+return json($res);
+```
+
