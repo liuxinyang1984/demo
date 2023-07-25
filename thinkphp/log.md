@@ -1398,7 +1398,7 @@ foreach($userList as $user){
 }
 ```
 __注意:__    
-> 如果同时定义了模型获取器和控制器动态获取器,那么动态获取器的优先级更高    
+> 如果同时定义了模型获取器和控制器动态获取器,那么动态获取器的优先级更高 
 
 #### 模型修改器    
 模型修改器的作用是对模型设置对象的值进行处理,在数据进行新增和修改的时候会触发修改器,命名规则为setXxxxAttr()
@@ -1411,29 +1411,264 @@ public function setEmailAttr($val){
 ### 模型的查询范围
 查询范围是模型的查询或者写入方法的封闭,方便控制器端调用.命名规则为scopeXxxx(),xxxx调用时直接作为参数使用.    
 1. 普通查询
-例如,要查询性别为男的用户:
-```php
-// 模型
-public function scopeMale($queryObj){
-    return $queryObj->where('gender','男')->field('id,username,gender,email');
-}
-// 控制器
-public function scope(){
-    // 方法1
-    $res = User::scope('male')->select()->toArray();
-    // 方法2
-    $res = User::male()->select()->toArray();
-    dump($res);
-}
-```
+    例如,要查询性别为男的用户:
+    ```php
+    // 模型
+    public function scopeMale($queryObj){
+        return $queryObj->where('gender','男')->field('id,username,gender,email');
+    }
+    // 控制器
+    public function scope(){
+        // 方法1
+        $res = User::scope('male')->select()->toArray();
+        // 方法2
+        $res = User::male()->select()->toArray();
+        dump($res);
+    }
+    ```
 1. 传参查询
+    ```php
+    // 模型
+    public function scopeEmail($queryObj,$val){
+        $queryObj->where('email','like','%'.$val.'%');
+    }
+    // 控制器
+    $res = User::email('xiao')->select();
+    return json($res);
+    ```
+1. 全局查询
+在模型下,需要全局条件的,可以添加$globalScope属性
+    - 定义全局查询
+        ```php
+        // 定义全局查询范围
+        protected $globalScope = ['status'];
+        // 定义全局查询方法
+        public function scopeStatus($query){
+            $query->where('status',1);
+        }
+        ```
+    - 取消全局查询
+        ```php
+        UserModel::withoutGlobalScope();
+        ```
+    - 取消部分全局
+        ```php
+        UserModel::withoutGlobalScope(['status']);
+        ```
+### 模型搜索器
+搜索器用于封闭字段的查询表达式,类似查询范围.一个搜索器对应模型的一个特殊public方法,方法命名规范为:searchFieldAttr().
+- 模型端    
+    第一个参数为调用的Model,第一个参数为传入的值,第三个参数为传入的完整参数
+    ```php
+    public function searchEmailAttr($queryObj,$val,$data){
+        $queryObj->where('email','like','%'.$val.'%');
+    }
+    public function searchCreateTimeAttr($queryObj,$val,$data){
+        $queryObj->whereBetweenTime('create_teme',$val[0],$val[1]);
+    }
+    ```
+- 控制器端    
+    用withSearch()方法调用,第一个参数限定搜索器的字段,第二个参数为表达式的值
+    ```php
+    $res = User::withSearch(['email','create_teme'],[
+        'email' => 'xiao',
+        'create_time' => ['2014-1-1','2017-1-1']
+    ])->select();
+    ```
+
+### 模型数据集
+数据集继承自collection类,数据集对象可以遍历、删除元素
+- isEmpty()方法,可以判断数据集是否为空
+    ```php
+    $res = User::where('id',999)->select();
+    if($res->isEmpty()){
+        return '数据集为空';
+    }
+    ```
+- hidden()/visible(),可以隐藏或者__只__显示某个字段
+    ```php
+    $res = User::select();
+    $res -> hiden(['password','details']);
+    ```
+- append()方法,可以添加某个获取器字段
+    ```php
+    $res = User::select();
+    $res -> append(['lev']);
+    ```
+- withAttr()方法,可以对字段进行函数处理
+    ```php
+    $res = User::select();
+    $res -> withAttr('email',function($val){
+        return strtoupper($val);
+    });
+    ```
+
+### 模型的自动时间戳
+开始自动时间戳后,TP会自动维护create_time和updata_time字段
+1. 自动时间戳的开启
+    1. 全局开启
+        ```php
+        //database.php
+        'auto_timestamp' => true,
+        ```
+    1. 单独为某个模型开启
+        ```php
+        //模型文件
+        protected $autoWriteTimestamp = true;
+        ```
+1. 修改自动时间戳默认字段
+    ```php
+    protected $createTime = 'create_at';
+    protected $updataTime = 'update_at';
+    ```
+1. 关闭模块某个自动时间戳字段
+    1. 在模型中关闭
+        ```php
+        protected $updateTime = false;
+        ```
+    1. 动态关闭
+        ```php
+        $user->isAutoWriteTimestamp(false)->save(...);
+        ```
+    
+### 模型的只读字段
+模型中可以设置只读字段,保证该字段无法被修改
 ```php
-// 模型
-public function scopeEmail($queryObj,$val){
-    $queryObj->where('email','like','%'.$val.'%');
-}
-// 控制器
-$res = User::email('xiao')->select();
-return json($res);
+protected $readonly = ['username','email'];
 ```
+### 模型的类型转换
+```php
+protected $type = [
+    'price' => 'float',
+    'status' => 'boolean',
+    'create_time' => 'datatime:Y/m/d'
+];
+```
+
+### 模型的废弃字段
+当某个字段不再被使用,可以设置废弃字段,可以在查询的时候被忽略
+```php
+protected $disuse = ['status','uid'];
+```
+### json字段
+#### 数据库模式
+1. 写入
+    ```php
+    $userData = [
+        'username' => '测试添加用户',
+        'email' => 'testuser@localhost',
+        'password' => '123',
+        'gender'   => '男',
+        'price'    => 100,
+        'details'  => '那叫一个帅',
+        'uid'      => 10010,
+        'list'     => [
+            'nickname' => '这个那个',
+            'level' => 70
+        ]
+    ];
+    $res = Db::name('user')->json(['list'])->insert($userData);
+    return $res;
+    ```
+1. 查询    
+    代码:
+    ```php
+    $user = Db::name('user')->json(['list'])->where('id',303)->value('list'); 
+    dump($user);
+    ```
+    结果:
+    ```
+    ^ array:2 [▼
+      "nickname" => "这个那个"
+      "level" => 70
+    ]
+    ```
+1. 修改
+    1. 修改所有json数据
+        ```php
+        $data['list'] = [
+            'nickname' =>'兽人萨尔',
+            'level' => 32
+        ];
+        return Db::name('user')->json(['list'])->where('id',302)->update($data);
+        ```
+    1. 修改json数据里某个值
+        ```php
+        $data['list->nickname'] = '亡灵希尔瓦娜斯';
+        return Db::name('user')->json(['list'])->where('id',302)->update($data);
+        ```
+
+####  模型模式
+1. 添加/修改
+    1. 可以使用传统方式 
+        ```php
+        $data['list->nickname'] = '亡灵希尔瓦娜斯';
+        return User::json(['list'])->where('id',302)->update($data);
+        ```
+    1. 为模型添加json属性
+        ```php
+        // 模型端
+        protected $json = ['list'];
+        //控制器端
+        $data['list->nickname'] = '人类阿尔萨斯';
+        return User::where('id',302)->update($data);
+        ```
+1. 查询    
+    查询json某字段的值:
+    ```php
+    $user = User::where('list->nickname','这个那个')->find();
+    echo Db::getLastSql();
+    dump ($user);
+    ```
+    结果:    
+    ![json_where](./log_images/json_where.png)
+
+### 模型的软删除
+1. 开启软删除
+    ```php
+    use SoftDelete;
+    ```
+1. 设置软删除字段    
+    ThinkPHP默认的软删除字段为delete_time,$deleteTime属性可以更改为其它值
+    ```php
+    protected $deleteTime = 'delete_at';
+    ```
+1. 删除方法
+    - destroy()
+        ```php
+        User::destroy(302);
+        ```
+    - delect()
+        ```php
+        User::find(302)->delect();
+        ```
+    
+1. 查询包括软删除的数据
+```php
+$user = User::withTrashed()->select();
+```
+1. 只查询被软删除的数据
+```php
+$user = User::onlyTrashed()->select();
+```
+1. 恢复一条被软删除的数据
+```php
+$user = User::onlyTrashed()->select();
+$user->restore();
+```
+1. 真实删除
+    1. destroy()     
+        先还原被软删除的数据,然后加true参数
+        ```php
+        $user = User::onlyTrashed()->find(302);
+        $user->restore();
+        User::destroy(302,true);
+        ```
+    1. delect()
+        找到被删除对象,在delect()方法前面加上force()方法,就可以真实删除
+        ```php
+        $user = User::onlyTrashed()->find(302);
+        $user->force()->delete();
+        ```
+### 模型和数据库事件
 
