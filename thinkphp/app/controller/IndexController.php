@@ -5,7 +5,7 @@ use app\BaseController;
 use think\facade\Config;
 use think\facade\Env;
 
-class Index extends BaseController
+class IndexController extends BaseController
 {
     public function index()
     {

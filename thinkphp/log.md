@@ -1672,3 +1672,94 @@ $user->restore();
         ```
 ### 模型和数据库事件
 
+## 路由
+#### 路由的定义
+1. 路由的作用是让URL地址更加的规范和简洁
+1. 设置路由对URL的检测、验证等操作提供了极大的便利
+1. 路由是默认开启的，如果想要关闭路由，在config/app.php设置
+    ```php
+    "with_route" => false;
+    ```
+1. 路由的配置在config/route.php,定义文件在route/app.php
+1. route目录的定义文件的文件名随机,都有效,或者多个均有效果
+
+#### 定义路由
+1. 在没有定义路由鬶的情况下,访问address/details包含id的URL时为
+    ```url
+    http://tp.localhost/address/details/id/5 //或者.../id/5.html
+    ```
+1. 在根目录route下的app.php里配置路由规则
+    ```php
+    Route::rule('d/:id','Address/details');
+    ```
+1. 配置好路由规则,再用原地址访问出显示非法请求
+    ![Route_err](./log_images/route_01.png)
+1. rule()方法默认请求是any,第三个参数可以限制
+    ```php
+    Route::rule('d/:id','Address/details','GET'); //GET
+    Route::rule('d/:id','Address/details','POST'); //POST
+    Route::rule('d/:id','Address/details','GET|POST'); //GET或者POST
+    ```
+1. 快捷请求
+    ```php
+    Route::get() Route::post() Route::delete() Route::put() ...
+    ```
+#### 配置规则
+
+    | 路由规则           | 表达式                                              |
+    |--------------------|-----------------------------------------------------|
+    | 静态路由           | Route::rule('ad','Address/index')                   |
+    | 静态动态结合       | Route::rule('details/:id','Address/details')        |
+    | 多参数静态动态结合 | Route::rule('search/:id/:uid','Address/search')     |
+    | 动态路由           | Route::rule(':search/:id/:uid','Address/search')    |
+    | 包含可选参数       | Route::rule('find/:id/[:content]','Address/find') |
+    | 正则匹配       | Route::rule('search/:id/:uid$','Address/search') |
+
+#### 创建路由地址
+1. 不定义标识
+```php
+return url('Address/details',['id'=>10]);
+```
+1. 定义标识
+```php
+Route::rule('details/:id','Address/details')->name('det');
+return url('det',[]'id=>10]);
+```
+
+### 路由的变量规则和闭包
+#### 变量规则
+- 默认变量规则为\w_,即字母数字中文和下划线
+- 更改默认匹配规则可以修改config/route.php
+    ```php
+    'default_route_pattern' => '[\w\.]+',
+    ```
+- 对于具体变量单独设置,可以用pattern()方法
+    1. 设置details()方法里的id只能为数字\d+
+        ```php
+        Route::rule('d/id','Address/details')
+            ->pattern(['id'=>'\d+']);
+        ```
+    1. 设置search()方法的两个值
+        ```php
+        Route::rule('s/:id/:uid','Address/search')
+            ->pattern([
+                'id' => '\d+',
+                'udi' => '\d+'
+            ]);
+        ```
+- 全局变量设置
+    ```php
+    Route::pattern(['id'=>'\d+']);
+    ```
+- 动态组合拼装
+    ```php
+    Route::rule('h-:name-:id','Hello:name/index');
+    Route::rule('h/<name>/<id>','Hello:name/index');
+    ```
+#### 闭包
+```php
+Route::get('think/:str',function($str){
+    return "我在想:".$str;
+});
+```
+    
