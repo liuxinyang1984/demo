@@ -108,10 +108,13 @@ class BlogController extends BaseController{
         $user = User::select();
         return json($user);
     }
-    public function search(){
-        $user =  Db::name('user')->whereBetweenTimeField('start_time','end_time')->select();
-        dump($user); 
-        echo Db::getLastSql();
+    //public function search(){
+        //$user =  Db::name('user')->whereBetweenTimeField('start_time','end_time')->select();
+        //dump($user); 
+        //echo Db::getLastSql();
+    //}
+    public function search($id){
+        return "id:".$id;
     }
     public function count(){
         //return Db::name('user')->buildSql(true); 

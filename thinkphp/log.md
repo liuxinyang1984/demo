@@ -1762,4 +1762,59 @@ Route::get('think/:str',function($str){
     return "我在想:".$str;
 });
 ```
-    
+### 路由的地址和参数
+#### 路由地址
+1. 路由地址一般为<控制器/操作方法>构成
+    ```php
+    //默认Index控制器
+    Route::rule('/','index');
+    //控制器/操作方法
+    Route::rule('details/:id','Address/details');
+    ```
+1. 支持多级控制器
+    ```php
+    //支持多级路由
+    Route::rule('details/:id','group.Blog/details');
+    ```
+1. 完整路径
+    1. 普通方法
+        ```php
+        //完整类名@操作方法
+        Route::rule('d/:id','app\controller\Address@details');
+        ```
+    1. 静态方法
+        ```php
+        //完整类名@操作方法
+        Route::rule('d/:id','app\controller\Address::details2');
+        ```
+1. 重定向
+    ```php
+    Route::redirect('rd/:id','http://tp.localhost',302);
+    ```
+
+#### 路由参数
+定义路由时,可以用相关方法匹配检测和行为
+1. ext()
+    - 强制URL后缀为.html
+        ```php
+        Route::rule('dh/:id','Address/details')->ext('html');
+        Route::rule('dp/:id','Address/details')->ext('html|jsp');
+        ```
+    - 全局统一配置,在config/route.php中设置
+    ```php
+    'url_html_suffix' => 'html|jsp',
+    ```
+1. https()
+检测是还否为https请求
+    ```php
+    Route::rule('dh/:id','Address/details')->ext('html')->https();
+    ```
+1. domain()
+检测域名或者子域名是否匹配
+    ```php
+    Route::rule('ds/:id','Address/details')->domain('localhsotl');
+    Route::rule('ds/:id','Address/details')->domain('news.acb.com');
+    Route::rule('ds/:id','Address/details')->domain('news');
+    ```
+1. ajax()/pjax()/json()
+检测当前页面请求方式
