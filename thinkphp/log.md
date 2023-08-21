@@ -1818,3 +1818,112 @@ Route::get('think/:str',function($str){
     ```
 1. ajax()/pjax()/json()
 检测当前页面请求方式
+    ```php
+    Route::rule('details/:id','Address/details')->ajax();
+    ```
+1. 对额外的参数进行检测 
+    ```php
+    //只有id=5,type=1的时候才会通过
+    Route::rule('details/:id','Address/details')->filter(['id'=>5,'type'=1]);
+    ```
+1. 追加额外参数(参数并不会通过URL传递)
+    ```php
+    Route::rule('details/:id','Address/details')->append(['status'=>1]);
+    ```
+1. 统一配置多个参数
+    ```php
+    Route::rule('details/:id','Address/details')->option([
+        'ext' => 'html',
+        'https' => true
+    ]);
+    ```
+
+### 路由的域名和跨域请求
+#### 域名路由
+1. 限定在某个域名下有效,通过域名路由闭包形式
+    1. 子域名开头
+    ```php
+    Route::domain('news',function(){
+        Route::rule('details/:id','Address/details');
+    });
+    ```
+    1. 多个子域名开头
+    ```php
+    Route::domain(['news','blog','admin'],function(){
+        Route::rule('details/:id','Address/details');
+    });
+    ```
+    1. 使用domain()方法
+    > 同上一章
+
+#### 跨域请求
+跨域请求时,由于安全限制,请求会被拦截.为了解除限制,可以通过路由allowCrossDomain()实现
+1. 解除跨域限制
+    ```php
+    Route::rule('details/:id','Address/details')->allowCrossDomain();
+    ```
+1. 请求白名单
+    ```php
+    Route::rule('details/:id','Address/details')->allowCrossDomain([
+        'Access-control-Allow-Origin' => 'http://tp.localhost'
+    ]);
+    ```
+
+### 路由的分组和MISS
+#### 路由分组
+将相同前缀的路由合并分级,可以简化路由定义,提高匹配效率
+- group()普通分组
+    ```php 
+    Route::group('add',function(){
+        Route::rule(':id','Address/details');
+        Route::rule(':name','Address/search');
+    })->ext('html')->pattern(['id'=>'\d+','name'=>'\w+']);
+    ```
+- 省略地址参数
+    ```php 
+    Route::group(function(){
+        Route::rule('d/:id','Address/details');
+        Route::rule('s/:name','Address/search');
+    })->ext('html')->pattern(['id'=>'\d+','name'=>'\w+']);
+    ```
+- prefix()省略控制器
+    ```php 
+    Route::group('add',function(){
+        Route::rule(':id','details');
+        Route::rule(':name','search');
+    })->ext('html')->pattern(['id'=>'\d+','name'=>'\w+'])->prefix('Address/');
+    ```
+- append()添加额外参数
+    ```php 
+    Route::group('add',function(){
+        Route::rule(':id','details');
+        Route::rule(':name','search');
+    })
+        ->ext('html')
+        ->pattern(['id'=>'\d+','name'=>'\w+'])
+        ->prefix('Address/')
+        ->append(['status'=>1]);
+    ```
+- 延迟解析    
+路由规则特别复杂时,加载解析会消耗较多的资源,开启延迟解析只在匹配的时候才会注册解析
+```php 
+//route.php
+'url_lazy_route' => true,
+```
+#### MISS路由
+在匹配不到路由规则时,可以自动中转到MISS路由
+1.  全局Miss
+    ```php
+    Route::miss('miss');
+    ```
+1. 分组Miss
+    ```php 
+    Route::group('add',function(){
+        ...
+        Route::miss('miss');
+
+    })
+        ->prefix('Address/');
+    ```
+### 资源路由
+

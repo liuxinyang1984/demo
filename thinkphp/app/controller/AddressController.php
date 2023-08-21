@@ -5,7 +5,7 @@ use think\facade\Route;
 
 class AddressController{
     public function index(){
-        return 'index';
+        return 'Address->index()';
     }
     public function details($id = "0"){
         return "id:".$id;
@@ -17,7 +17,11 @@ class AddressController{
     public function test(){
         return 'test';
     }
-    public function search($id,$uid){
-        return "id:".$id."<hr>uid:".$uid;
+    public function search($name = 'world'){
+        return "Hello ".$name;
     }
+    public function miss(){
+        return "Address_Mr.Miss";
+    }
+
 }

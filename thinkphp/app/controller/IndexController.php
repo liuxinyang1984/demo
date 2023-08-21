@@ -24,4 +24,7 @@ class IndexController extends BaseController
         
         echo "hello,".$param;
     }
+    public function miss(){
+        return "Index_Mr:miss";
+    }
 }
