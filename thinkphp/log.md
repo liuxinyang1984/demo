@@ -1927,3 +1927,173 @@ Route::get('think/:str',function($str){
     ```
 ### 资源路由
 
+### 注释路由
+注释路由不是系统默认支持,需要额外安装扩展
+1. 安装扩展
+    ```php
+    composer require topthink/think-annotation
+    ```
+1. 引入类库
+    ```php
+    use think\annotation\Route;
+    ```
+1. 在注释中添加路由
+    ```php
+    /**
+     * 测试注释路由
+     * @param int $id
+     * @return string
+     * @route ("details/:id)
+     * @author Mr.Cookie Wed Aug 23 03:02:18 PM CST 2023
+     */
+    ```
+1. 第二或者以上参数,可以设置请求类型
+    ```php 
+    ...
+    * @route ("ds/:id",method="GET")
+    ...
+    ```
+## 依赖注入
+> 依赖注入其实本质上是指对类的依赖通过构造器完成自动注入，例如在控制器架构方法和操作方法中一旦对参数进行对象类型约束则会自动触发依赖注入，由于访问控制器的参数都来自于URL请求，普通变量就是通过参数绑定自动获取，对象变量则是通过依赖注入生成。
+### 自动绑定
+1. 新建模型
+    ```php
+    class Mtest extends Model{
+        public $username = "Mr.Cookie";
+    }
+    ```
+1. 控制器注入
+    ```php
+    namespace app\controller;
+    use app\model\One;
+    class InjectController{
+        protected $test;
+        public function __construct(One $test){
+            $this->test = $test;
+        }
+        public function index(){
+            return $this->test->myname;
+        }
+    }
+    ```
+
+### 手动绑定
+```php
+public function bind(){
+    bind('one','app\model\One');
+    return app('one')->username;
+}
+```
+
+## 门面模式/facade
+### 实例
+1. 新建一个公共类
+    ```php
+    // /app/common/Test.php
+    class Test{
+        public function hello($str){
+            return 'Hello '.$str;
+        }
+    }
+    ```
+1. 新建一个facade类
+    ```php
+    // /app/facade/Test.php
+    namespace app\facade;
+    use think\Facade;
+    class Test extends Facade{
+        protected static function getFacadeClass()
+        {
+            return 'app\common\Test';
+        }
+    }
+    ```
+
+## 请求对象和信息
+### 请求对象
+1. 方法注入
+    ```php
+    use think\Request;
+    public function index(Request $req){
+        return $req->param('username');
+    }
+    ```
+1. 构造方法注入
+    ```php
+    use think\Request;
+    class Test{
+        public $req;
+        public function __construct(Request $req){
+            $this->req = $req;
+        }
+        public funtion index(){
+            return $this->req->param('username');
+        }
+    }
+    ```
+1. facade方式
+    ```php
+    use think\facade\Request;
+    public function index(){
+        return Request::param('username');
+    }
+    ```
+1. 助手函数方式
+    ```php
+    public function index(){
+        return request()->param('username');
+    }
+    ```
+### 请求信息
+#### 请求方法
+
+| 方法        | 含义                                   |
+|-------------|----------------------------------------|
+| host        | 当前访问域名或者IP                     |
+| scheme      | 当前访问协议                           |
+| port        | 当前访问的端口                         |
+| remotePort  | 当前请求的REMOTE_PORT                  |
+| protocol    | 当前请求的SERVER_PROTOCOL              |
+| contentType | 当前请求的CONTENT_TYPE                 |
+| domain      | 当前包含协议的域名                     |
+| subDomain   | 当前访问的子域名                       |
+| panDomain   | 当前访问的泛域名                       |
+| rootDomain  | 当前访问的根域名                       |
+| url         | 当前完整URL                            |
+| baseUrl     | 当前URL（不含QUERY_STRING）            |
+| query       | 当前请求的QUERY_STRING参数             |
+| baseFile    | 当前执行的文件                         |
+| root        | URL访问根地址                          |
+| rootUrl     | URL访问根目录                          |
+| pathinfo    | 当前请求URL的pathinfo信息（含URL后缀） |
+| ext         | 当前URL的访问后缀                      |
+| time        | 获取当前请求的时间                     |
+| type        | 当前请求的资源类型                     |
+| method      | 当前请求类型                           |
+| rule        | 当前请求的路由对象实例                 |
+
+#### 方法示例
+```php
+use think\facade\Request;
+// 获取完整URL地址 不带域名
+Request::url();
+// 获取完整URL地址 包含域名
+Request::url(true);
+// 获取当前URL（不含QUERY_STRING） 不带域名
+Request::baseFile();
+// 获取当前URL（不含QUERY_STRING） 包含域名
+Request::baseFile(true);
+// 获取URL访问根地址 不带域名
+Request::root();
+// 获取URL访问根地址 包含域名
+Request::root(true);
+```
+
+#### 请求变量
+1. has()    
+可以使用has方法来检测一个变量参数是否设置
+    ```php
+    Request::has('id','get');
+    Request::has('name','post');
+    ```
+

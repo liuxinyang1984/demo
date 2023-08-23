@@ -14,7 +14,7 @@ use think\facade\Route;
     //return 'hello,ThinkPHP6!';
 //});
 
-//Route::get('hello/:name', 'index/hello');
+Route::get('hello/:name', 'index/hello');
 
 
 //新建路由
@@ -39,11 +39,11 @@ use think\facade\Route;
     //'Access-Control-Allow-Origin' => 'http://tp.localhost'
 //]);
 
-Route::group('add',function(){
-    Route::rule('d/:id','details');
-    Route::rule('s/:name','search');
-    Route::miss('miss');
-})->ext('html')->pattern(['id'=>'\d+','name'=>'\w+'])->prefix('Address/');
+//Route::group('add',function(){
+    //Route::rule('d/:id','details');
+    //Route::rule('s/:name','search');
+    //Route::miss('miss');
+//})->ext('html')->pattern(['id'=>'\d+','name'=>'\w+'])->prefix('Address/');
 //Route::miss('miss');
 
-Route::resource('ads','Address');
+//Route::resource('ads','Address');
