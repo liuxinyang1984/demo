@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{block name="title"}这里是页面标题{/block}</title>
+    <style>
+        #logo{
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div id="logo">
+            {block name='logo'}
+            这里定义LOGO
+            {/block}
+        </div>
+        <nav>
+            {block name='nav'}
+            这里是导航栏部分
+            {/block}
+        </nav>
+    </header>
+    
+</body>
+</html>
