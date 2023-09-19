@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #box{
+            background-color: red;
+            width: 100%;
+            height:100px;
+        }
+        #sub{
+            background-color: green;
+            width: 50%;
+            height:50px;
+        }
+    </style>
+</head>
+<body>
+    <!--声明一个被vue控制的DOM区域-->
+    <div id="app">
+        <h1>vue3</h1>
+        <p>{{msg | cap | maxsize(5)}}</p>
+        <!--<div v-bind:id="rawId | formatId"></div>-->
+        <button @click="flag=!flag">隐藏/显示</button>
+        <ul>
+            <li v-for="(item,index) in list" :id="index">姓名:{{item.name}}</li>
+        </ul>
+
+        <h2>结果</h2>
+        <div id="box" v-if="flag"></div>
+        <div id="sub" v-show="flag"></div>
+        <input type="text" v-model="username">
+        <input type="text" v-model.number="age">
+        <input type="text" v-model.trim="msg">
+        <input type="text" v-model.lazy="email">
+        <p>age:{{age}}</p>
+        <p>msg:{{msg}}</p>
+        <p>email:{{email}}</p>
+        <hr>
+        <select name="" id="" v-model="province" @change="select">
+            <option value="1" selected>请选择</option>
+            <option value="2">北京</option>
+            <option value="3">上海</option>
+            <option value="4">天津</option>
+        </select>
+        <hr>
+        <input type="text" @keyup.enter="submit" @keyup.esc="escap">  
+        <input type="text" @keyup.esc="escap">  
+        <hr>
+        <a href="http://www.baidu.com" @click.prevent="onAlinkClick">链接</a>
+        <hr>
+        <p v-text="username"></p>
+
+        <!--默认值会被覆盖掉-->
+        <p v-text="age">99</p>
+        <p>姓名:{{username}}</p>
+        <div v-html="disc"></div>
+        <input type="text" v-bind:placeholder="inputValue">
+
+        <hr>
+        <h3>count的值:{{count}}</h3>
+        <button v-on:click="addCount">+1</button>
+
+    </div>
+<!--导入vue.js脚本-->
+<!--<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>-->
+<script src="https://unpkg.com/vue@2.6.14/dist/vue.min.js"></script>
+<script>
+    Vue.filter('cap',function(str){
+        return "####"+str.charAt(0).toUpperCase()+str.slice(1)+"####"
+    })
+    Vue.filter('maxsize',(str,size=10)=>{
+        if(str.size <= size) return str
+        return str.slice(0,size)+"..."
+    })
+
+    //创建vue实例对象
+    const vm = new Vue({
+        el:"#app",
+        data:{
+            age:999,
+            msg:'hello',
+            email:'',
+            username:"Mr.cookie",
+            disc:"<h5 style='color:red'>这里是html字符串</h5>",
+            inputValue:"aaaa",
+            count:0,
+            province:1,
+            flag:true,
+            list:[
+                {id:1,name:'洋哥'},
+                {id:2,name:'洋姐'}
+            ],
+        },
+        methods:{
+            inputChange(){
+                console.log(this.username)
+            },
+            select(){
+                console.log(this.province)
+            },
+            addCount(e){
+                const bgColor = e.target.style.backgroundColor
+                console.log(bgColor)
+                e.target.style.backgroundColor = bgColor ==='red'?'':'red'
+                this.count ++
+            },
+            onAlinkClick(){
+                console.log("阻止默认行为!")
+            },
+            divBox(){
+                console.log('divBox')
+            },
+            divSub(){
+                console.log('divSub')
+            },
+            submit(e){
+                console.log("输入的文字"+e.target.value)
+            },
+            escap(e){
+                console.log("清空输入框")
+                e.target.value=''
+            }
+        },
+        filters:{
+            capitalize(str){
+                return str.charAt(0).toUpperCase()+str.slice(1)
+        }
+    }
+    })
+</script>
+
+    
+</body>
+</html>

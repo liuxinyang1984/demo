@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>品牌列表</title>
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.min.js"></script>
+<link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.0/css/bootstrap-grid.css" rel="stylesheet"></head>
+<link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.0/css/bootstrap.css" rel="stylesheet">
+<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.0/js/bootstrap.bundle.js"></script>
+<body>
+<div id="app">
+    <div class="card">
+        <h5 class="card-header">添加品牌</h5>
+        <div class="card-body"></div>    
+   <form action="" class="for-inline" @submit.prevent>
+        <div class="input-group mb-2 mr-sm-2">
+            <div class="input-group-prepend">
+                <div class="input-group-text">品牌名称</div>
+            </div>
+            <input type="text" class="form-control" v-model.trim="brandname" @keyup.esc="brandname = ''" @keyup.submit = "btnSubmit">
+        </div>
+        <button type="submit" class="btn btn-primary mb-2" @click="btnSubmit">添加品牌</button>
+   </form>
+ </div>
+    <table class="table table-bordered table-striped mt-2">
+        <thead>
+            <tr>
+                <td>#</td>
+                <td>品牌名称</td>
+                <td>品牌状态</td>
+                <td>品牌时间</td>
+                <td>操作</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(brand,index) in brandlist" :key="brand.id" >
+                <td>{{index + 1}}</td>
+                <td>{{brand.brandname}}</td>
+                <td>
+                    <div class="form-check form-switch">
+                         <input class="form-check-input" type="checkbox" role="switch" :id="'brandSwitch'+brand.id" v-model="brand.status">
+                         <label class="form-check-label" :for="'brandSwitch'+brand.id">
+                             禁用
+                        </label>
+                    </div>
+                </td>
+                <td>{{brand.addtime | dateFormat}}</td>
+                <td>
+                    <a href="#" @click.prement="btnDelete(brand.id)">删除</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+    Vue.filter('dateFormat',(str)=>{
+        const dateTime = new Date(str)
+
+        const y =dateTime.getFullYear()
+        const m = padZero(dateTime.getMonth() +1)
+        const d = padZero(dateTime.getDate())
+        const hh = padZero(dateTime.getHours())
+        const mm = padZero(dateTime.getMinutes())
+        const ss = padZero(dateTime.getSeconds())
+        return `${y}-${m}-${d} ${hh}:${mm}:${ss}`
+    })
+    function padZero(n){
+     return n>9?n:'0'+n
+    }
+    const vm = new Vue({
+        el:"#app",
+        data:{
+            brandname:'',
+            cursor:5,
+            brandlist:[
+                {id:1,brandname:"任天堂",status:true,addtime:new Date()},
+                {id:2,brandname:"世嘉",status:false,addtime:new Date()},
+                {id:3,brandname:"索尼",status:true,addtime:new Date()},
+                {id:4,brandname:"微软",status:true,addtime:new Date()},
+
+            ],
+        },
+        methods:{
+            btnSubmit(){
+                if(this.brandname === '') return alert('不能为空')
+                brand = {
+                    id:this.cursor+1,
+                    brandname:this.brandname,
+                    status:true,
+                    addtime:new Date()
+                }
+                this.brandlist.push(brand)
+                this.cursor++
+                console.log(this.brandlist)
+            },
+            btnDelete(id){
+                this.brandlist = this.brandlist.filter(x=>x.id !==id)
+            }
+        }
+    })
+</script>
+</body>
+</html>
