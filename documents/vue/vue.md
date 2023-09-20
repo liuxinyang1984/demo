@@ -424,3 +424,275 @@ Vue.filter('cap',function(str){
     }
     ```
 ### 实现修改品牌状态功能
+
+# 组件基础
+## vite的基本使用
+1. 创建vite项目
+```shell
+npm init vite-app 项目名称
+cd 项目名称
+npm install
+npm run dev
+```
+
+1. 目录结构
+    - node_modules 目录用来存放第三方依赖包
+    - public 公共的静态资源目录
+    - src 项目源代码
+        - assets 项目中所有的静态资源文件(css.font)
+        - components 项目中的所有自定义组件
+        - App.vue 项目的根组件
+        - index.css 全局样式表
+        - main.js 项目的打包入口文件
+    - .gitignore
+    - index.html 单页面应用的入口HTML文件
+    - package.json 包管理配置文件
+1. 项目运行流程    
+通过main.js把App.vue渲染到index.html的指定区域中
+    1. 文件作用 
+        - App.vue 用来编写待渲染的模板结构
+        - index.html 预留一个el区域
+    1. 运行流程
+        1. index标记el区域
+            ```html
+            <div id="app"></div>
+            ```
+        1. 引入main.js文件渲染
+            ```html
+            <script type="module" src="/src/main.js"></script>
+            ```
+            1. 导入vue组件的createApp函数
+                ```vue
+                import { createApp } from 'vue'
+                ```
+            1. 导入App组件(待渲染)
+                ```vue
+                import App from './App.vue'
+                ```
+            1. 创建实例并挂载
+                ```vue
+                //调用createApp()函数,返回一个单页面应用程序的实例,用常量spa_app进行接收
+                const spa_app = createApp(App)
+                //调用实例方法mount(),指定vue控制区域
+                spa_app.mount('#app')
+                ```
+
+## 组件开发
+把页面可重用部分封闭为组件,从而方便项目的开发和维护
+### 组件化开发的优点
+- 提高代码的利用性和灵活性
+- 提升开发效率和可维护性
+
+### vue的组件化开发    
+- vue是一个完全支持组件化开发的框架
+- vue规定组件的后缀后为.vue
+- App.vue就是一个vue组件
+
+### 组件的构成
+#### template节点(必选) 组件的模板结构
+1. 基本结构
+    每个组件的模板结构,需要定义到template节点中
+    ```vue
+    <template>
+        <!-- 当前组件的DOM结构 -->
+    </template>
+    ```
+    > template是vue提供的容器标签,只起到包裹的作用,并不会被渲染为真正的DOM元素
+1. 在template使用指令
+    ```vue
+    <template>
+        <h1>App.vue</h1>
+        <!-- 使用{{}}插件表达式 -->
+        <p>生成一个随机数字:{{(Math:random()*10).toFixed(2)}}</p>
+        <!-- 使用v-band绑定属性-->
+        <p :title="new Date().toLocalTimeString()">默认文本</p>
+        <!--使用v-on绑定事件-->
+        <buttom @click="showInfo">按钮</buttom>
+    </template>
+    ```
+1. 定义根节点    
+在vue2.x版本中,templete节点内的DOM结构权仅支持单个根节点
+    ```html
+    <template>
+        <!-- vue 2.x版本,节点内的所有元素,最外层必须有唯一的根节点包裹,否则会报错 -->
+        <div>
+            <h1>Vue 2.x</h1>
+        </div>
+    </template>
+    ```
+在vue3.x版本中,template支持定义多个节点
+    ```html
+    <template>
+        <!-- vue 2.x版本,包含多个节点,不需要最外层包裹 -->
+        <h1>Vue 3.x</h1>
+        <h2>不需要包裹</h2>
+    </template>
+    ```
+
+#### script节点(可选) 组件的JavaScript业务逻辑
+1. 基本结构
+    ```html
+    <script>
+    //默认导出对象
+    export default{}
+    </script>
+    ```
+1. name节点    
+    定义当前组件名称
+    ```html
+    export default {
+        name:"RootApp"
+    }
+    ```
+1. data节点    
+    定义渲染期间用到的数据
+    ```html
+    export default {
+        name:"RootApp",
+        data:function data(){
+            return {
+                username:"gogogo"
+            }
+        }
+    }
+    ```
+    ```html
+    export default {
+        name:"RootApp",
+        function data(){
+            return {
+                username:'洋哥'
+            }
+        }
+    }
+    ```
+    ```html
+    data:()=>{
+        return {
+            username:'洋哥'
+        }
+    }
+    ```
+    ```html
+    data(){
+        return {
+            username:'洋哥'
+        }
+    }
+    ```
+1. methods节点    
+    定义组件中的事件处理方法
+    ```html
+    export default {
+        name:"RootApp",
+        data(){
+            ...
+        },
+        methods:{
+            test:function()=>{
+                //this为当前组件实例
+                console.log(this)
+            }
+        }
+    }
+    ```
+
+#### style节点(可选) 组件的样式
+1. 基本结构
+    ```html
+    <style lang="css">
+    </style>
+    ```
+    > lang默认只支持css语法,可选值还有less,scss等
+1. less语法支持
+    1. 安装依赖包
+    ```shell
+    npm i less -D       //安装less组件到开发依赖
+    ```
+    1. style标签添加lang="less"属性
+    ```html
+    <style lang="less">
+    </style>
+    ```
+### 组件的注册
+组件之间可以相互引用,组件引用原则:先注册后使用
+#### 注册组件的两种方式
+1. 全局注册    
+    被全局注册的组件,可以在全局任务一个组件内使用
+    1. 新建一个组件
+    ```javascript
+    // components/MySwiper.vue
+    <template>
+        <h3>轮播图</h3>
+    </template>
+    <script>
+    export default {
+        name:"全局轮播图"
+    }
+    </script>
+    ```
+    1. 在main.js导入组件
+    ```javascript
+    import Swiper from "./components/MySwiper.vue"
+    import Test from "./components/MyTest.vue"
+    ```
+    1. 调用vue实例的component()方法,在全局注册组件
+    ```javascript
+    spa_app.component('my-swiper',Swiper)
+    spa_app.component('my-test',Test)
+    ```
+1. 局部注册
+    被局部注册的组件,只能在当前注册范围内使用
+    1. 在组件内导入要注册的组件
+    ```html
+    <script>
+    import Search from "./components/MySearch.vue"
+    export default{
+        componets:{
+            'my-search':Search,
+        }
+    }
+    </script>
+    ```
+
+#### 组件注册时的命名
+1. kebab-case命名法(短横线命名法,my-swiper my-search)
+    使用时必须按照kebab-case来使用
+    ```html
+    <template>
+        <my-swiper></my-swiper>
+        <my-search></my-search>
+    </template>
+    <script>
+    import Swiper from "./components/my-swiper"
+    import Search from "./components/my-search"
+    export default{
+        components:{
+            "my-swiper":Swiper,
+            "my-search":Search
+        },
+    }
+    </script>
+    ```
+1. PascalCase命名法(帕斯卡命名法/大驼峰命名法,MySwiper MySearch)
+    使用时可以按照Pascalcase来使用,也可以转换为kebab-case来使用
+    ```html
+    <template>
+        <mySwiper></mySwiper>
+        <my-search></my-search>
+    </template>
+    <script>
+    import Swiper from "./components/my-swiper"
+    import Search from "./components/my-search"
+    export default{
+        components:{
+            "my-swiper":Swiper,
+            "my-search":Search
+        },
+    }
+    </script>
+    ```
+
+
+    
+
