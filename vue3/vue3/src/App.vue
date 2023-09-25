@@ -1,19 +1,31 @@
 <template>
-    <h1 @click="test3">App.vue</h1>
+    <h1 @click="test3" :class="isItalic ? 'italic' : ''">App.vue</h1>
+    <my-style></my-style>
+    <hr>
+    <button @click="isItalic = !isItalic">Toggle Italic</button>
+    <my-artical :title="artTitle" :author="artAuthor"></my-artical>
+    <hr>
     <my-swiper></my-swiper>
     <my-search></my-search>
     <my-test></my-test>
     <IamTest></IamTest>
+
+
 </template>
 
 <script>
 import Search from "./components/MySearch.vue"
 import MyTest from "./components/MyTest.vue"
+import MyArtical from "./components/MyArtical.vue"
+import MyStyle from "./components/MyStyle.vue"
 export default {
     name:"RootApp",
-    data:function data(){
+    data(){
         return {
-            username:"gogogo"
+            username:"gogogo",
+            artTitle:"书名",
+            artAuthor:"作者名",
+            isItalic:true
         }
     },
     methods:{
@@ -31,7 +43,9 @@ export default {
     },
     components:{
         "my-search":Search,
-        MyTest
+        MyTest,
+        MyArtical,
+        MyStyle
     }
 }
 function fnData(){
@@ -45,5 +59,8 @@ function fnData(){
 <style lang="less">
 h1{
     color:red;
+}
+.italic{
+    font-style: italic;
 }
 </style>

@@ -6,6 +6,7 @@ import App from './App.vue'
 //导入需要全局注册的组件
 import Swiper from "./components/MySwiper.vue"
 import Test from "./components/MyTest.vue"
+import MyStyle from "./components/MyStyle.vue"
 console.log(Test.name)
 
 import './index.css'
@@ -14,7 +15,7 @@ import './index.css'
 const spa_app = createApp(App)
 
 // 注册全局组件
-spa_app.component('my-swiper',Swiper)
+spa_app.component('my-swiper',Swiper,MyStyle)
 spa_app.component(Test.name,Test)
 
 //调用实例方法mount(),指定vue控制区域
