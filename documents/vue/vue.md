@@ -694,5 +694,273 @@ npm run dev
     ```
 
 
+### 组件的props
+#### 什么是props
+props是组件的自定义属性,组件的使用者可以通过props把数据传递到子组件内部,代子内部进行使用
+```html
+<my-articel title="面朝大海,春暖花开" author='海子'</my-articel>
+```
+- props的作用:父组件通过props向子组件传递要展示的数据
+- props的好处:提高了组件的复用性
+
+#### props的声明
+在封闭vue组件时,可以把动态的数据声明为props自定义属性,自定义属性可以在当前组件的模板结构中直接使用.
+```html
+<!-- MyArtical.vue -->
+<template>
+    <h3>标题:{{title}}</h3> 
+    <h5>作者:{{author}}</h5>
+</template>
+<script>
+export default {
+    props:[
+        'title','author'
+    ],
+}
+</script>
+```
+```html
+<!-- App.vue -->
+...
+<my-articel title="面朝大海,春暖花开" author='海子'</my-articel>
+...
+<script>
+import MyArtical from "./components/MyArtical.vue"
+export default {
+    name:"RootApp",
+    data:function data(){
+        return {
+       ...
+       }
+    },
+    methods:{
+        ...
+    },
+    components:{
+        ...
+        MyArtical
+    }
+}
+</script>
+```
+
+> 给子组件传递了未声明的props属性,这些属性会被忽略,无法被子组件使用
+
+#### 动态绑定props的值
+```html
+<my-artical :title="artTitle" :author="artAuthor"></my-artical>
+...
+    data:function data(){
+        return {
+            username:"gogogo",
+            artTitle:"书名",
+            artAuthor:"作者名"
+        }
+    },
+```
+
+#### 组件的大小写命名
+
+组件中如果使用camelCase(驼峰命名法)声明了props属性的名称,则有两种方式绑定属性的值
+- 驼峰式(camelCase)
+    ```html
+    <my-artical :title="artTitle" :author="artAuthor"></my-artical>
+    ```
+- 短横线(kebab-case)
+    ```html
+    <my-artical :title="art-title" :author="art-author"></my-artical>
+    ```
+
+### class与Style
+#### 绑定class
+可以通过三元表达式,动态绑定class类名
+```html
+<h1 @click="test3" :class="isItalic ? 'italic' : ''">App.vue</h1>
+<button @click="isItalic = !isItalic">改变字体</button>
+<script>
+...
+export default{
+    date(){
+        return {
+            isItalic:true
+        }
+    },
+}
+</script>
+<style>
+.italic{
+    font-style: italic;
+}
+</style>
+```
+
+#### 以数组方式绑定
+如果元素需要动态绑定多个class类名,可以使用数组的语法格式
+```html
+<h3 :class="['thin',isItalic ? 'italic' : '',isDelete ? 'delete' : '']">测试样式</h3>
+```
+#### 以对象方式绑定
+```html
+<h3 :class="objStyle">测试样式</h3>
+<button @click="objStyle.italic = !objStyle.italic">Toggle Italic</button>
+<button @click="objStyle.delete = !objStyle.delete">Toggle Delete</button>
+<script>
+export default{
+    data(){
+        return{
+            objStyle:{
+                italic:true,
+                delete:false
+            }
+        }
+    }
+}
+</script>
+```
+#### 以对象方式绑定内联style
+可以为:style绑定一个对象,对象的属性(css property)可以用驼峰式(camleCase)或者短横线(kebab-case)来命名
+```html
+<div :style="{color:active,'font-size':fsize+'px',backgroundColor:bgcolor}">
+测试文本
+</div>
+<button @click="fsize ++">增大</button>
+<button @click="fsize --">减小</button>
+<script>
+export default{
+    data(){
+        return{
+            active:'red',
+            fsize:24,
+            bgcolor:'pink'
+        }
+    }
+}
+</script>
+```
+### 封装一个组件
+#### 需求
+1. 允许自定义标题
+1. 允许自定义背景色
+1. 允许自定义文本颜色
+1. 组件需要在页面顶部fixed固定
+#### 创建一个组件
+```html
+<template>
+    <div class="header-container">
+    </div>
+</template>
+<script>
+export default {
+    name:"MyHeader",
+    data(){
+        return{
+        }
+    },
+}
+</script>
+<style lang="less" scoped>
+</style>
+```
+#### 配置组件样式
+1. 配置组件背景颜色
+```html
+<style lang="less" scoped>
+.header-container{
+    height: 45px;
+    background-color: pink;
+    width: 100%;
+}
+</style>
+```
+1. 配置文本居中
+```html
+<style lang="less" scoped>
+.header-container{
+    ...
+    text-align: center;
+    line-height: 45px;
+}
+</style>
+```
+1. 配置组件定位
+```html
+<style lang="less" scoped>
+.header-container{
+    ...
+    position: fixed;
+    top:0;
+    left:0;
+    z-index: 999;
+}
+</style>
+```
+
+#### 封装属性
+```html
+<template>
+    <div class="header-container" :style={backgroundColor:bgcolor,color:text_color}>
+        {{title}}
+    </div>
+</template>
+<script>
+export default {
+    name:"MyHeader",
+    data(){
+        return{
+        }
+    },
+    props:['title','bgcolor','text-color'],
+}
+</script>
+```
+#### 传递给子组件属性
+```html
+<my-header title="MyHeader" bgcolor="#0099ff" text_color="#ffffff"></my-header>
+```
+
+### props验证
+为了阻止数据不合法,在封闭组件时对外界传递过来的props数据进行合法性校验
+> 使用对象类型的props节点,可以对每个props进行数据类型的校验
+#### 基础类型检查
+```html
+props:{
+    A:String,               //字符串
+    B:Number,               //数字
+    C:Boolean,              //布尔
+    D:Array,                //数组
+    E:Object,               //对象
+    F:Date,                 //日期
+    G:Function,             //函数
+    H:Symbol                //符号
+},
+```
+#### 多个可能的类型
+```html
+props:{
+    info:[String,Number],
+},
+```
+#### 必填项校验
+```html
+props:{
+    info:{
+        type:String,
+        required:true
+    }
+},
+```
+#### 属性默认值
+#### 自定义验证函数
+### 计算属性
+
+### 组件的自定义事件
+
+### 组件的v-model
+
+
+
+
+
+
     
 
