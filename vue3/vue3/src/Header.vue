@@ -2,14 +2,15 @@
     <div id="app-container">
         <h1>APP根组件</h1>
     </div>
+    <my-computed></my-computed>
     <hr>
-    <my-count count=3 :status="true"></my-count>
 </template>
 <script>
 import MyHeader from "./components/MyHeader.vue"
 import MyCount from "./Count.vue"
+import MyComputed from "./components/MyComputed.vue"
 export default {
-    components: { MyHeader,MyCount},
+    components: { MyHeader,MyCount,MyComputed},
     name:"APP",
     data:function data(){
         return {

@@ -427,6 +427,7 @@ Vue.filter('cap',function(str){
 
 # 组件基础
 ## vite的基本使用
+
 1. 创建vite项目
 ```shell
 npm init vite-app 项目名称
@@ -950,10 +951,117 @@ props:{
 },
 ```
 #### 属性默认值
+```html
+props:{
+    info:{
+        type:String,
+        required:true,
+        default:100
+    },
+},
+```
 #### 自定义验证函数
+```html
+props:{
+    msg:{
+        validator(value){
+            return ['success','warning','danger'].indexOf(value) !== -1
+        }
+    }
+},
+```
 ### 计算属性
+计算属性本质上就是一个function,可以实时监听data中数据的变化,并return一个计算后的新值
+1. 声明    
+    计算属性要以function函数的形式声明到组件的computed选项中
+    ```html
+    <template>
+        <h2>计算属性</h2>
+        <input type="text" v-model.number="count">
+        <p>计算:{{double}}</p>    
+    </template>
+    <script>
+    export default {
+        data(){
+            return {
+                count:0
+            }
+        },
+        computed:{
+            double(){
+                return this.count * 2
+            }
+        }
+    }
+    </script>
+    ```
 
 ### 组件的自定义事件
+为了让组件的使用者可以监听到组件内的状态变化,需要用到组件的自定义事件
+1. 声明自定义事件
+    ```html
+    <template>
+        <h3>Counter组件</h3>
+        <button>+1</button>
+    </template>
+    <script>
+    export default {
+        emits:['change'],
+    }
+    </script>
+    ```
+1. 触发自定义事件    
+在emits节点下声明的事件,可以通过this.$emit('事件名称')进行触发
+    ```html
+    <template>
+        <h3>Counter组件</h3>
+        <button @click="onBtnClick">+1</button>
+    </template>
+    <script>
+    export default {
+        emits:['change'],
+        methods:{
+            onBtnClick(){
+                this.$emit('change')
+            }
+        }
+    }
+    </script>
+    ```
+1. 监听自定义事件    
+通过v-on监听自定义事件
+    ```html
+    <my-count @change="getCountChange"></my-count> </template>
+    <script>
+    export default {
+        ...
+        methods:{
+            getCountChange(){
+                this.count ++
+                console.log("Count:getCountChange")
+            }
+        },
+        ...
+    }
+    </script>
+    ```
+1. 自定义事件传参
+    1. 传递参数
+    ```html
+    <script>
+    export default {
+        ...
+        methods:{
+            onBtnClick(){
+                this.$emit('change',this.name)
+            }
+        ...
+    }
+    </script>
+    ```
+    1. 接收参数
+
+
 
 ### 组件的v-model
 
