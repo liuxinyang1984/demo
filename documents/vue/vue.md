@@ -1064,11 +1064,368 @@ props:{
 
 
 ### 组件的v-model
+#### 传递参数到子组件
+1. 父组件通过v-bind属性绑定,把数据传递给子组件
+    ```html
+    <!-- app.vue -->
+    <my-count :count="count"> </my-count>
+    ```
+1. 子组件,通过props接收父组件传递的数据
+    ```html
+    <!-- MyCount.vue -->
+    <template>
+        <h2>MyCounter:{{count}}</h2>
+        <button @click="onBtnClick">MyCount ++</button>
+    </template>
+    <script>
+    export default{
+        ...
+        props:['count'],
+    }
+    </script>
+    ```
+#### 子组件数据同步到父组件
+1. 在v-bind指令前绑定v-model指令
+    ```html
+    <!-- app.vue -->
+    <my-count v-model:count="count" @tt="tt"> </my-count>
+    ```
+1. 在子组件中自定义事件,格式为update:props的值
+    ```html
+    <!-- MyCount.vue -->
+    <script>
+    export default{
+        ...
+        props:['count'],
+        emits:['update:count'],
+    }
+    </script>
+    ```
+1. 触发自定义事件,更新你组件的数据
+    ```html
+    <!-- MyCount.vue -->
+    <template>
+        <h2>MyCounter:{{count}}</h2>
+        <button @click="onBtnClick">MyCount ++</button>
+    </template>
+    <script>
+    export default{
+        ...
+        props:['count'],
+        emits:['update:count'],
+        methods:{
+            onBtnClick(){
+                this.$emit('update:count',this.count +1)
+            }
+        }
+    }
+    </script>
+    ```
+
+## 组件案例
+### 初始化项目
+    1. 创建初始化项目
+        1. 创建项目
+            ```shell
+            npm init vite-app todoDemo
+            ```
+        1. 安装基础依赖包
+            ```shell
+            cd todoDemo
+            npm install
+            ```
+        1. 安装所需依赖包
+            ```shell
+            npm i less -D
+            ```
+    1. 初始化样式及布局
+        1. 全局样式
+            ```html
+            <!-- index.css -->
+            :root{
+                font-size: 12px;
+            }
+            body{
+                padding: 8px;
+            }
+            ```
+        1. App.vue
+            ```html
+            <!-- app.vue -->
+            <template>
+                <div>
+                    <h1>App根组件</h1>
+                </div>
+            </template>
+            <script>
+            export default {
+                name: 'AppRoot',
+                data(){
+                    return {
+                        todolist:[
+                            {
+                                id:1,
+                                task:"周一早晨点开会",
+                                done:false,
+                            },
+                            {
+                                id:2,
+                                task:"周一晚上8点聚餐",
+                                done:false,
+                            },
+                            {
+                                id:3,
+                                task:"准备周三上午的演讲稿",
+                                done:true,
+                            }
+                        ],
+                    }
+                },
+            }
+            </script>
+            <style lang="less" scoped>
+            </style>
+            ```
+
+### 封装组件
+
+#### todo-list
+- 创建注册组件
+    1. 创建目录及文件
+        ```shell
+        mkdir src/components/todo-list
+        ```
+        ```html
+        <!-- TodoList.vue -->
+        <template>
+            <div>TodoList组件</div>
+        </template>
+        <script>
+        export default {
+            name:"TodoList",
+        }
+        </script>
+        <style lang="less" scoped>
+        </style>
+        ```
+    1. 导入组件
+        ```html
+        <!-- App.vue -->
+        <script>
+        import TodoList from './components/todo-list/TodoList.vue'
+        export default {
+            name: 'AppRoot',
+            components:{TodoList},
+            ...
+        }
+        </script>
+        ```
+- 基于bootstrap渲染
+    1. 安装bootstrap插件
+        ```shell
+        npm i bootstrap -S
+        ```
+    1. 引用bootstrap
+        ```html
+        <!-- main.js -->
+        import 'bootstrap/dist/css/bootstrap.css'
+        import 'bootstrap/dist/js/bootstrap.js'
+        ```
+    1. 基础布局
+        ```html
+        <template>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault">
+                    Default checkbox
+                </label>
+            </div>
+                <span class="badge bg-primary rounded-pill">完成</span>
+                <span class="badge bg-warning rounded-pill">未完成</span>
+            </li>
+        </ul>
+        </template>
+        ```
+- 声名props
+    ```html
+    <script>
+    export default {
+        name:"TodoList",
+        props:{
+            list:{
+                type:Array,
+                required:true,
+                default:[]
+            }
+        }
+    }
+    </script>
+    ```
+- 绑定子组件数据
+    ```html
+    <todo-list :list="todolist"></todo-list>
+    ```
+- 渲染列表DOM结构
+    1. 循环li
+        ```html
+        <li class="list-group-item d-flex justify-content-between align-items-center" v-for="item in list" :key="item.id">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" :id="'todo-'+item.id" >
+                <label class="form-check-label" :for="'todo-'+item.id">
+                    {{item.task}}
+                </label>
+            </div>
+            <span class="badge bg-success rounded-pill" v-if="item.done">完成</span>
+            <span class="badge bg-warning rounded-pill" v-else>未完成</span>
+        </li>
+        ```
+    1. 绑定checkbox状态
+        ```html
+        <input class="form-check-input" type="checkbox" value="" :id="'todo-'+item.id" v-model="item.done">
+        ```
+    1. 修改完成样式
+        ```html
+        <label class="form-check-label" :class="item.done?'delete':''" :for="'todo-'+item.id">
+        ...
+        <style lang="less" scoped>
+        label.delete{
+            text-decoration: line-through;
+            color:gray;
+            font-style: italic;
+        }
+        </style>
+        ```
+
+#### todo-input
+1. 创建注册组件
+    1. 创建组件
+        ```shell
+        mkdir components/todo-input
+        vim components/todo-input/TodoInput.vue
+        ```
+        ```html
+        <template>
+            <h2>TodoInput</h2>
+        </template>
+        <script>
+        export default {
+            name:"TodoInput",
+        }
+        </script>
+        <style lang="less" scoped>
+        </style>
+        ```
+    1. 注册导入组件
+        ```html
+        import TodoList from  './components/todo-list/TodoList.vue'
+        export default {
+            components: { 
+                ...
+                TodoInput,
+            },
+        }
+        ```
+1. 渲染组件结构
+    ```html
+    <template>
+    <form class="row row-cols-lg-auto g-3 align-items-center">
+        <div class="input-group mb-2 mt-4">
+            <div class="input-group-text">任务</div>
+            <input type="text" class="form-control" mr-sm-5 placeholder="任务信息">
+            <button type="submit" class="btn btn-primary">添加新任务</button>
+        </div>
+    </form>
+    </template>
+    ```
+1. 自定义事件
+    1. 添加任务消息数据
+        ```html
+        data(){
+            return {
+                taskname:'',
+            }
+        }
+        ```
+    1. 绑定数据
+        ```html
+        <input type="text" class="form-control" mr-sm-5 placeholder="任务信息" v-model.trim="taskname">
+        ```
+    1. 阻止submit事件,并指定处理函数
+        ```html
+        <form class="row row-cols-lg-auto g-3 align-items-center" @submit.prevent="FmSubmit">
+        ...
+        ```
+    1. 声明自定义事件
+        ```html
+        methods:{
+            FmSubmit(){
+                if(this.taskname == '') return alert('不能为空')
+                this.$emit('addTask',this.taskname)
+                this.taskname=''
+            },
+        }
+        ```
+1. 实现添加任务功能
+    1. 监听组件addTask自定义事件
+        ```html
+        <todo-input @addTask="addTask"></todo-input>
+        ```
+    1. 添加新任务
+        ```html
+        methods:{
+            addTask(taskName){
+                const task = {
+                    id:this.todolist.length+1,
+                    task:taskName,
+                    done:false
+                }
+                this.todolist.push(task)
+            }
+        }
+        ```
+
+#### todo-button
+1. 创建并注册组件
+    ```html
+    <!-- /components/todo-button/TodoButton.vue -->
+    <template>
+        <h3>TodoButton</h3>
+    </template>
+    <script>
+    export default {
+        name:"TodoButton",
+    }
+    </script>
+    <style lang="less" scoped>
+    </style>
+    ```
+    ```html
+    <!-- App.vue -->
+    ...
+    import TodoButton from './components/todo-button/TodoButton.vue'
+    export default {
+        components: { 
+            TodoList,
+            TodoInput,
+            TodoButton,
+        },
+    }
+    ```
+1. 渲染组件结构
+
+1. 传递子组件默认值
+1. 更新索引
+1. 通过计算属性更新列表
 
 
 
 
 
 
-    
+
+
+
+
 

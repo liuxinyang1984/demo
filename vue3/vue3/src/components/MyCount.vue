@@ -1,23 +1,21 @@
 <template>
-    <h3>Counter组件</h3>
-    <hr>
-    MyCount:{{count}}
-    <br>
-    <button @click="onBtnClick">+1</button>
+    <h2>MyCounter:{{count}}</h2>
+    <button @click="onBtnClick">MyCount ++</button>
 </template>
 <script>
 export default {
     name:"MyCount",
     data(){
         return{
-            count:0,
         }
     },
-    emits:['countChange'],
+    props:['count'],
+    emits:['update:count','tt'],
     methods:{
         onBtnClick(){
-            this.count ++
-            this.$emit('countChange',this.count)
+            console.log('MyCount:onBtnClick')
+            this.$emit('update:count',this.count +1)
+            this.$emit('tt',this.count + 1)
         }
     }
 }
