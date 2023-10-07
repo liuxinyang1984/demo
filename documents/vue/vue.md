@@ -1414,18 +1414,81 @@ props:{
     }
     ```
 1. 渲染组件结构
-    1. 使用BootStrap的button group渲染结构
-1. 传递子组件默认值
-1. 更新索引
+    ```html
+    <template>
+        <div class="btn-group mt-2 col-12" role="group" aria-label="Basic mixed styles example">
+            <button type="button" class="btn" :class="flag == 'all' ? 'btn-primary' : 'btn-secondary'">全部</button>
+            <button type="button" class="btn" :class="flag == 'done' ? 'btn-success' : 'btn-secondary'">已完成</button>
+            <button type="button" class="btn" :class="flag == 'undo' ? 'btn-warning' : 'btn-secondary'">未完成</button>
+        </div>
+    </template>
+    ```
+1. 传递子组件选项卡默认值
+    ```html
+    props:{
+        flag:{
+            type:String,
+            required:true,
+            default:"all"
+        }
+    },
+    ```
+1. 更新选项卡索引
+    1. 为按钮添加click事件
+        ```html
+        <template>
+            <div class="btn-group mt-2 col-12" role="group" aria-label="Basic mixed styles example">
+                <button type="button" class="btn" :class="flag == 'all' ? 'btn-primary' : 'btn-secondary'" @click="changeFlag('all')">全部</button>
+                <button type="button" class="btn" :class="flag == 'done' ? 'btn-success' : 'btn-secondary'" @click="changeFlag('done')">已完成</button>
+                <button type="button" class="btn" :class="flag == 'undo' ? 'btn-warning' : 'btn-secondary'" @click="changeFlag('undo')">未完成</button>
+            </div>
+        </template>
+        ```
+    1. 添加自定义事件,传参给父组件
+        ```html
+        <script>
+        export default {
+            ...
+            emits:['update:flag'],
+            methods:{
+                changeFlag(val){
+                    if(val === this.flag) return
+                    this.$emit('update:flag',val)
+                }
+            }
+        }
+        </script>
+        ```
+    1. 父组件绑定接收子组件传参
+        ```html
+        <todo-button v-model:flag="flag"></todo-button>
+        ```
 1. 通过计算属性更新列表
+    ```html
+    computed:{
+        taskList(){
+            switch (this.flag){
+                case "all":
+                    console.log("all")
+                    return this.todolist
+                case "done":
+                    console.log("done")
+                    return this.todolist.filter(x => x.done)
+                case "undo":
+                    console.log("undo")
+                    return this.todolist.filter(x => !x.done)
+                default:
+                    console.log("default")
+                    break
+            }
+        }
+    }
+    ```
 
+##  组件高级
 
-
-
-
-
-
-
-
-
-
+### watch侦听器
+### 组件的生命周期
+### 组件之间的数据共享
+### 全局配置axios
+### 购物车案例

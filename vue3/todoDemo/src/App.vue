@@ -2,8 +2,8 @@
     <div>
         <my-header></my-header>
         <todo-input @addTask="addTask"></todo-input>
-        <todo-list v-model:list="todolist"></todo-list>
-        <todo-button></todo-button>
+        <todo-list v-model:list="taskList"></todo-list>
+        <todo-button v-model:flag="flag"></todo-button>
     </div>
 </template>
 
@@ -37,6 +37,7 @@ export default {
                     done:true,
                 }
             ],
+            flag:"all"
         }
     },
     methods:{
@@ -47,6 +48,24 @@ export default {
                 done:false
             }
             this.todolist.push(task)
+        }
+    },
+    computed:{
+        taskList(){
+            switch (this.flag){
+                case "all":
+                    console.log("all")
+                    return this.todolist
+                case "done":
+                    console.log("done")
+                    return this.todolist.filter(x => x.done)
+                case "undo":
+                    console.log("undo")
+                    return this.todolist.filter(x => !x.done)
+                default:
+                    console.log("default")
+                    break
+            }
         }
     }
 }
