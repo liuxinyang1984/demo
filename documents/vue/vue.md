@@ -1489,7 +1489,354 @@ props:{
 
 ### watch侦听器
 watch侦听器允许开发者监视神气的变化,针对数据的变化做特定的操作
+#### 基本语法
+```html
+<script>
+export default {
+  name: 'App',
+  components: {
+  },
+    data(){
+        return {
+            username:'',
+        }
+    },
+    watch:{
+        username(newval,oldval){
+            console.log(newval,oldval)
+        }
+    }
+}
+</script>
+```
+#### 示例
+使用sxios发起ajax请求,检测用户名是否可用    
+1. 安装axios组伯
+    ```shell
+    npm i axios -S
+    ```
+1. 导入组件
+    ```html
+    import axios from 'axios'
+    ```
+1. 发起请求
+    ```html
+    watch:{
+        async username(newval){
+            const {data:res} = await axios.get('https://applet-base-api-t.itheima.net/api/get/')
+            console.log(res)
+        }
+    }
+    ```
+#### immediate选项
+默认情况下,加载完毕不会调用watch侦听器,使用immediate选项,可以立即调用侦听器
+    ```html
+    watch:{
+        username:{
+            async handler(newval){
+                const {data:res} = await axios.get('https://applet-base-api-t.itheima.net/api')
+                console.log(res)
+            },
+            immediate:true
+        }
+    }
+    ```
+#### deep选项
+当watch侦听的是一个对象,如果对象中的属性值发生变化,无法被监听到.此时需要使用deep选项
+1. 对象属性无法被侦听
+    ```html
+    <template>
+        <input type="text" v-model="info.username">
+    </template>
+    <script>
+    import axios from 'axios'
+    export default {
+        ...
+        data(){
+            return {
+                info:{
+                    username:'zs'
+                }
+
+            }
+        },
+        watch:{
+            info:{
+                async handler(val){
+                    const {data:res} = await axios.get('https://applet-base-api-t.itheima.net/api')
+                    console.log(res)
+                }
+            }
+        }
+    }
+    </script>
+    ```
+1. 添加deep选项
+    ```html
+    watch:{
+        info:{
+            async handler(val){
+                const {data:res} = await axios.get('https://applet-base-api-t.itheima.net/api/get')
+                console.log(res)
+            },
+            deep:true
+        }
+    }
+    ```
+1. 监听单个属性
+    ```html
+    watch:{
+        'info.username':{
+            async handler(val){
+                const {data:res} = await axios.get('https://applet-base-api-t.itheima.net/api/get')
+                console.log(res)
+            },
+        }
+    }
+    ```
+#### 计算属性和侦听器的区别
+> 计算属性侧重于监听多个值的变化,最终计算并返回一个新值    
+> 侦听器侧重于监听单个数据的变化,最终执行特定的业务处理,不需要有任何返回值
+
 ### 组件的生命周期
+#### created
+#### mounted
+#### unmounted
+#### before
+    - beforeCreate
+    - beforeMount
+    - beforeUnmount
 ### 组件之间的数据共享
+#### 组件之间的关系
+在项目开发中,组件之间的三种关系
+- 父子关系
+- 兄弟关系
+- 后代关系
+#### 父子组件之间的数据共享
+1. 父->子    
+    ```html
+    <!-- 父组件 -->
+    <my-test :msg="message"></my-test>
+    ...
+    data(){
+        return {
+            message:"hello world"
+        }
+    }
+    ```
+    ```html
+    <!-- 子组件 -->
+    <template>
+        <h3>{{msg}}</h3>
+    </template>
+
+    ...
+    <script>
+    export default{
+        props:['msg'],
+    }
+    ```
+1. 子->父
+    ```html
+    <!-- 子组件 -->
+    <template>
+        <button @click="btnClick('hi')">传递</button>
+    </template>
+    <script>
+    export default{
+        emits:['onValChange'],
+        methods:{
+            btnClick(val){
+                this.emit('onValChange',val)
+            }
+        }
+    }
+    ```
+    ```html
+    <!-- 父组件 -->
+    <template>
+        <h1>Son:{{val}}</h1>
+        <my-son @onValChange="(val)=>{this.val = val}"></my-son>
+    </template>
+    ...
+    data(){
+        return {
+            val:''
+        }
+    }
+    ```
+1. 父子双向同步    
+    ```html
+    <!-- 父组件 -->
+    <template>
+        <h1>Son:{{val}}</h1>
+        <my-son v-model:son-val="val"></my-son>
+    </template>
+    ...
+    data(){
+        return {
+            val:''
+        }
+    }
+    ```
+    ```html
+    <!-- 子组件 -->
+    <template>
+      <button @click="btnClick('Son')">Click</button>
+      <h2>Son:{{sonVal}}</h2>
+    </template>
+    <script>
+    export default {
+        props:['sonVal'],
+        emits:['update:sonVal'],
+        methods:{
+            btnClick(val){
+                this.$emit('update:sonVal',val)
+            }
+        }
+    }
+    </script>
+    ```
+#### 兄弟组件之间的数据共享
+兄弟组件之间可以用EventBus实现.可以借助于第三方的包mitt来创建eventBus对象
+1. 安装mitt包
+    ```shell
+    npm i mitt -S
+    ```
+1. 导入EventBus对象
+    ```javascript
+    <!-- eventBus.js -->
+    //导入mitt包
+    import mitt from "mitt"
+    //创建实例对象
+    const bus = mitt()
+    //导出实例化的对象
+    export default bus
+    ```
+1. 接收数据
+    ```html
+    <template>
+        <div class="com2">
+            <h3>接收方:{{num}}</h3>
+            <button>+1</button>
+        </div>
+    </template>
+    <script>
+    import bus from '..eventBus'
+    export default {
+        name:'component02',
+        data(){
+            return{
+                num:0
+            }
+        },
+        created(){
+            bus.on('countChange',()=>{
+                this.num = count
+            })
+        }
+
+    }
+    </script>
+    ```
+1. 发送数据
+    ```html
+    <template>
+        <div class="com1">
+            <h3>发送方:{{count}}</h3>
+            <button @click="com01_add">+1</button>
+        </div>
+    </template>
+
+    <script>
+    import bus from '../eventBus.js'
+    export default {
+        name:"component01",
+        data(){
+            return{
+                count:0,
+            }
+        },
+        methods:{
+            com01_add(){
+                this.count ++
+                bus.emit('countChange',this.count)
+            }
+        },
+    }
+    </script>
+    ```
+1. 数据互通
+    ```html
+    <template>
+        <div class="com1">
+            <h3>发送方:{{count}}</h3>
+            <button @click="com01_add">+1</button>
+        </div>
+    </template>
+
+    <script>
+    import bus from '../eventBus.js'
+    export default {
+        name:"component01",
+        data(){
+            return{
+                count:0,
+            }
+        },
+        methods:{
+            com01_add(){
+                this.count ++
+                bus.emit('countChange',this.count)
+            }
+        },
+        created(){
+            bus.on('com2_num_change',(num)=>{
+                this.count = num
+            })
+        }
+    }
+    </script>
+    ```
+
+#### 后代关系之间的数据共享
+在父节点向子孙节点组件共享数据时,由于嵌套关系复杂,可以使用provide和inject实现后代关系组件的数据共享
+1. 父组件通过provide共享数据
+    ```html
+    <script>
+    import Component01 from './components/Component01.vue'
+    export default {
+      name: 'App',
+      components: {
+        Component01,
+      },
+        data(){
+            return {
+                color:'red'
+            }
+        },
+        provide(){
+            return{
+                color:this.color
+            }
+        },
+    }
+    ```
+1. 子孙节点通过inject接收数据
+    ```html
+    <script>
+    export default {
+        name:'component02',
+        data(){
+            return{
+                num:0
+            }
+        },
+        inject:['color'],
+    }
+    </script>
+    ```
+#### 父节点对外共享响应式数据
+默认情况,provide出去的数据,不是响应式的.可以通过computed函数对外共享响应数据
 ### 全局配置axios
 ### 购物车案例

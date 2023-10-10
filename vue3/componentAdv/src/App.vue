@@ -1,15 +1,28 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Hello Vue 3.0 + Vite" />
+    <h1>My:{{color}}</h1>
+    <button @click="this.color = 'blue'">toggle Blue</button>
+    <hr>
+    <component-01></component-01>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import Component01 from './components/Component01.vue'
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    Component01,
+  },
+    data(){
+        return {
+            val:'My',
+            color:'red'
+        }
+    },
+    provide(){
+        return{
+            color:computed(()=>{return this.color}),
+            count:1
+        }
+    },
 }
 </script>
