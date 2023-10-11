@@ -40,6 +40,8 @@ class PaymentContent
     private $pageNotifyUrl;
 
     private $validTime;
+    
+    private $productCd;
 
     /***
      * 业务参数
@@ -64,6 +66,25 @@ class PaymentContent
     {
         $this->arrayModel["merCd"] = $merCd;
         $this->merCd = $merCd;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProductCd()
+    {
+        return $this->productCd;
+    }
+
+    /**
+     * @param mixed $storeCd
+     * @return self
+     */
+    public function setProductCd($productCd): self
+    {
+        $this->arrayModel["productCd"] = $productCd;
+        $this->productCd = $productCd;
         return $this;
     }
 

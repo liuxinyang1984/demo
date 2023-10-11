@@ -8,9 +8,6 @@ class Util
      */
     public static function array2UrlQuery($transMap)
     {
-        /* echo "array2UrlQuery.\$transMap:<br>"; */
-        /* var_dump($transMap); */
-        /* echo "<hr>"; */
         if (!$transMap) {
             return null;
         }
@@ -19,13 +16,14 @@ class Util
 
         //将要 参数 排序
         ksort($transMap);
+
         //重新组装参数
         $params = array();
         foreach ($transMap as $key => $value) {
             $params[] = $key . '=' . $value;
         }
-        $data = implode('&', $params);
 
+        $data = implode('&', $params);
         return $data;
     }
 

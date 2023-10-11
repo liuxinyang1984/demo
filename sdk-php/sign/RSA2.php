@@ -34,34 +34,7 @@ class RSA2
         if (!is_string($signData)) {
             return null;
         }
-        /* echo "<br>$$$$$$$$$$$$$$$$$$$<br>\$signData:<br>"; */
-        /* var_dump($signData); */
-        /* echo "<br>\$sign End<br>$$$$$$$$$$$$$$$$<br>"; */
-/*  */
-/*  */
-        /* echo "RSA2::getStrPrivateKey(\$privateKey)<br>"; */
-            /* $re = RSA2::getStrPrivateKey($privateKey); */
-            /* var_dump($re); */
-        /* echo "<br>RSA END<br>"; */
-        $res = openssl_sign(
-            $signData,
-            $sign,
-            RSA2::getStrPrivateKey($privateKey),
-            OPENSSL_ALGO_SHA256
-        );
-        echo "openssl_sign:<br>";
-        var_dump($res);
-        echo "<br>###############################<br>";
-        echo "\$sign<br>";
-        var_dump($sign);
-        echo "<br>###############################<br>";
-        echo "判断私钥是否可用<br>";
-        $pi_key =  openssl_pkey_get_private($privateKey);
-        var_dump($pi_key);
-        echo "<br>###############################<br>";
-        echo "<br>显示生成私钥###############################<pre>";
-        echo RSA2::getStrPrivateKey($privateKey);
-        echo "<br>###############################<br>";
+
         return openssl_sign(
             $signData,
             $sign,
@@ -78,6 +51,9 @@ class RSA2
         if (!is_string($signData)) {
             return false;
         }
+        echo "<pre>################################<br>";
+        echo "PublicKey:<br>";
+        echo RSA2::getStrPublicKey($publicKey);
         return (bool) openssl_verify(
             $signData,
             base64_decode($sign),

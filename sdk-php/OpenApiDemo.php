@@ -8,6 +8,10 @@ include_once "./model/PaymentContent.php";
 include_once "./model/OpenApiResp.php";
 
 header("Content-Type:text/html;charset=utf-8");
+
+echo "PHP 版本：" . phpversion() . "<br>";
+
+echo "OPENSSL_ALGO_SHA256：" . OPENSSL_ALGO_SHA256 . "<br>";
 /**
  * 配置文件
  */
@@ -37,10 +41,10 @@ $paymentContent = new PaymentContent();
 $paymentContent->setMerCd("800490010000553"); // 商户号
 $paymentContent->setStoreCd("1030186308"); // 门店号
 $paymentContent->setAppId("wx317765448aa3f8d5"); // appId
-$paymentContent->setOpenId("wx317765448aa3f8d5");
-$paymentContent->setOrderNo(date("YmdHis")); // 订单号
-$paymentContent->setPayType("TX4599"); // 支付类型//收银宝、当面付类交易
-$paymentContent->setRandomStr("100"); // 商户自定义串
+$paymentContent->setOpenId("openid0000000");
+$paymentContent->setOrderNo(date("YmdHis")."a"); // 订单号
+$paymentContent->setPayType("TX4512"); // 支付类型//收银宝、当面付类交易
+$paymentContent->setRandomStr("100123"); // 商户自定义串
 $paymentContent->setTxnOrderFlag("00"); // 交易标记
 $paymentContent->setSumAmt("0.01");
 $paymentContent->setAmount("2");
@@ -49,7 +53,7 @@ $paymentContent->setRemark("备注摘要");
 $paymentContent->setNotifyUrl("www.localhost.com"); // 异步通知 当有的时候 会发送异步通知 也可不填写
 $paymentContent->setPageNotifyUrl("01");
 $paymentContent->setValidTime("370102198308270022");
-
+$paymentContent->setProductCd("P004500");
 $openApiReq->setBizContent($paymentContent->getBizContent());
 
 /**
@@ -57,11 +61,7 @@ $openApiReq->setBizContent($paymentContent->getBizContent());
  */
 $openApiClient = new OpenApiClient();
 $openApiResp = $openApiClient::execute($openApiConfig, $openApiReq);
-/* echo "<pre>"; */
-/* print_r($openApiReq); */
-/* echo "<hr>"; */
 if ($openApiResp->isSuccess()) {
-    echo "成功";
     print_r("响应结果:<pre>");
     print_r($openApiResp->getArrayModel()) . "</br>";
 } else {
