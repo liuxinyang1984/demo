@@ -1839,4 +1839,287 @@ export default {
 #### 父节点对外共享响应式数据
 默认情况,provide出去的数据,不是响应式的.可以通过computed函数对外共享响应数据
 ### 全局配置axios
+#### 为什么要全局配置
+- 每个组件都需要导入axios,代码臃肿
+- 每次请求都需要填写完整的请求路径,不得后期维护
+#### 全局配置
+1. 在main.js入口文件中,通过app.config.globalProperties全局挂载axios
+    ```javascript
+    //配置请求根路径
+    baseurl = ''
+    axois.defaults.baseURL = baseurl
+    //将axios挂载为app的全局自定义属性$http
+    app.config.globalProperties.$http = axios
+    ```
+1. 发起请求
+    ```html
+    <script>
+    export default {
+        name:'GetInfo',
+        methods:{
+            async getInfo(){
+                const {data:res} = await this.$http('/api/get',{
+                    params:{
+                        name:'ls',
+                        age:33
+                    }
+                })
+            }
+        }
+    }
+    </script>
+    ```
 ### 购物车案例
+#### 初始化项目
+1. 初始化vite项目
+    ```shell
+    npm init vite-app cart
+    cd cart 
+    npm install
+    ```
+1. 安装bootstrap插件
+    ```shell
+    npm i bootstrap -S
+    ```
+1. 引用bootstrap
+    ```html
+    <!-- main.js -->
+    import 'bootstrap/dist/css/bootstrap.css'
+    import 'bootstrap/dist/js/bootstrap.js'
+    ...
+    const vm = createApp(App)
+    vm.mount('#app')
+    ```
+1. 清理项目结构
+    - 清空App.vue
+    - 删除comonets目录下的HelloWorld.vue
+1. 安装less插件
+    ```shell
+    npm i less -D
+    ```
+1. 初始化index.css全局样式
+    ```css
+    :root{
+        font-size: 12px;
+    }
+    ```
+#### 封装Header组件
+1. 创建组件
+    ```html
+    <!-- EsHeader.vue -->
+    <template>
+        <div :style="style" class='esheader'>
+            <h2>{{estitle}}</h2>
+        </div>
+    </template>
+    <script>
+    export default {
+        name:'EsHeader',
+        data(){
+            return{
+                style:{
+                    'backgroundColor':this.bgcolor,
+                    'color':this.color,
+                    'fontSize':this.fsize
+                }
+            }
+        },
+        props:{
+            estitle:{
+                type:String,
+                default:'es-header'
+            },
+            bgcolor:{
+                type:String,
+                default:'#0099ff'
+            },
+            color:{
+                type:String,
+                default:'#ffffff'
+            },
+            fsize:{
+                type:Number,
+                default:12
+            },
+        },
+        created(){
+        }
+    }
+    </script>
+    <style lang="less" scoped>
+    .esheader{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width:100%;
+        height:48px;
+        text-align: center;
+        line-height: 48px;
+        z-index: 999;
+        h2{
+            line-height:48px;
+        }
+    }
+    </style>
+    ```
+1. 导入组件
+    ```html
+    <!-- App.vue -->
+    <template>
+        <h1>Root组件</h1>
+        <es-header></es-header>
+    </template>
+    <script>
+    import EsHeader from "./components/EsHeader.vue"
+    export default {
+      name: 'CartRoot',
+      components: {
+        EsHeader
+      }
+    }
+    </script>
+    ```
+#### 基于axios请求商品数据
+1. 全局配置axios模块
+    1. 安装axios模块
+        ```shell
+        npm i axios -S
+        ```
+    1. 导入并配置
+        ```javascript
+        <!-- main.js -->
+        import axios from 'axios'
+        axios.defaults.baseURL = 'https://applet-base-api-t.itheima.net'
+        const vm = createApp(App)
+        vm.config.globalProperties.$http = axios
+        vm.mount('#app')
+        ```
+1. 请求商品数据
+    1. 新建getGoodsList方法
+        ```html
+        <!-- App.vue -->
+        <script>
+        methods:{
+            async getGoodsList(){
+                const {data:res} = await this.$http.get('/api/cart')
+                if (res.status !=200) return alert('请求商品列表数据失败')
+                this.googslist = res.list
+            }
+        }
+        </script>
+        ```
+    1. 在created同期,调用getGoodsList方法
+        ```html
+        <!-- App.vue -->
+        <script>
+        export default{
+            ...
+            data(){
+                return {
+                    goodsList:[],
+                }
+            },
+            created(){
+                this.getGoodsList()
+            }
+        }
+        </script>
+        ```
+
+#### 封装Footer组件
+1. 创建组件
+1. 导入注册组件
+    ```html
+    <template>
+       ... 
+       <es-footer></es-footer>
+    </template>
+    <script>
+    ...
+    import EsHeader from "./components/EsFooter.vue"
+    export default {
+      name: 'CartRoot',
+      components: {
+        EsHeader,
+        EsFooter
+      }
+    }
+    </script>
+    ```
+1. 接收父组件传递的参数
+    1. 声明自定义属性
+        ```html
+        <script>
+        export default {
+            name:'EsFooter',
+            props:{
+                total:{
+                    type:Number,
+                    default:0
+                },
+                amount:{
+                    type:Number,
+                    default:0
+                },
+                isfull:{
+                    type:Boolean,
+                    default:false
+                }
+            }
+        }
+        </script>
+        ```
+    1. 渲染
+        ```html
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="fullCheck" :checked="isfull">
+            <label class="form-check-label" for="fullCheck">
+                全选
+            </label>
+        </div>
+        <div class="amount-container">
+            <span>合计:</span>
+            <span class="amount"> ￥{{amount.toFixed(2)}}元</span>
+        </div>
+        <button type="button" class="btn btn-primary btn-buy">结算({{total}})</button>
+        ```
+1. 自定义事件,监听全选按钮状态
+    1. 声明自定义事件
+        ```html
+        emits:['fullChange'],
+        ```
+    1. 创建方法,触发自定义事件
+        ```html
+        <template>
+            ...
+            <input class="form-check-input" type="checkbox" value="" id="fullCheck" :checked="isfull" @change="fullCheckChange">
+        </template>
+        <script>
+        methods:{
+            fullCheckChange(){
+                this.$emit('fullChange',e.target.checked)
+            }
+        }
+        </script>
+        ```
+    1. App组件接收全选状态
+        ```html
+        <es-footer @fullChange="fullCheckChange"></es-footer>
+        <script>
+        methods:{
+            fullCheckChange(val){
+                console.log(val)
+            }
+        }
+        </script>
+        ```
+#### 封装Goods组件
+1. 创建EsGoods组件
+1. 导入注册组件
+    ```html
+    <div class="goods-list" v-for="goods in goodsList" :key="goods.goods_id">
+        <es-goods :goods="goods" :id="goods.goods_id"></es-goods>
+    </div>
+
+    ```
+#### 封装Counter组件

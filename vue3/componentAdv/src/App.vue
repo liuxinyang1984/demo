@@ -20,7 +20,6 @@ export default {
     },
     provide(){
         return{
-            color:computed(()=>{return this.color}),
             count:1
         }
     },
