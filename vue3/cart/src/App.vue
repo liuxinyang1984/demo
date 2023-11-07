@@ -1,13 +1,11 @@
 <template>
     <div class="approot">
         <es-header estitle="购物车" :fsize=24></es-header>
-        <h1>Root组件</h1>
-        <hr>
-        <div class="goods-list" v-for="goods in goodsList" :key="goods.goods_id">
-            <es-goods :goods="goods" :id="goods.goods_id"></es-goods>
+        <div class="goods-list" v-for="(goods,index) in goodsList" :key="goods.goods_id">
+            <es-goods :goods="goods" :id="goods.goods_id" @goodsStateChange="onGoodsStateChange"></es-goods>
         </div>
 
-        <es-footer :amount="0" :total="1" v-model:isfull="isfull" @fullChange="fullChange"></es-footer>
+        <es-footer :amount="amount" :total="total" v-model:isfull="isfull" @fullChange="fullChange"></es-footer>
     </div>
 </template>
 
@@ -25,7 +23,7 @@ export default {
     data(){
         return {
             goodsList:[],
-            isfull:true,
+            //isfull:false,
         }
     },
     methods:{
@@ -36,15 +34,56 @@ export default {
         },
         fullChange(val){
             console.log("父组件fullChange:"+val)
+            this.goodsList.forEach(goods=>{
+                goods.goods_state = val
+            })
+        },
+        onGoodsStateChange(e){
+            //console.log("ROOT.onGoodsStateChange:")
+            //console.log(e)
+            const goods = this.goodsList.find(item => item.goods_id === e.id)
+            if(goods){
+                goods.goods_state = e.state
+            }
+            //console.log(this.goodsList)
+
+
         }
     },
     created(){
         this.getGoodsList()
+    },
+    computed:{
+        amount(){
+            let amount= 0
+            this.goodsList
+                .filter(x => x.goods_state)
+                .forEach(x => {
+                amount += x.goods_price * x.goods_count
+            })
+            return amount
+        },
+        total(){
+            let total = 0
+            this.goodsList.filter(goods => goods.goods_state).forEach(goods => {
+                //console.log(goods)
+                total += goods.goods_count
+            })
+            return total
+        },
+        isfull(){
+            if(this.goodsList.filter(goods => !goods.goods_state).length > 0){
+                return false
+            }else{
+                return true
+            }
+        }
     }
 }
 </script>
 <style lang="less" scoped>
 .approot{
     padding-top: 48px;
+    padding-bottom: 56px;
 }
 </style>
