@@ -2115,11 +2115,143 @@ export default {
         ```
 #### 封装Goods组件
 1. 创建EsGoods组件
+    ```html
+    <template>
+        <div class="goods-container">
+            <div class="left">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" :id="'goods-'+goods.goods_id">
+                    <label class="form-check-label" :for="'goods-'+goods.goods_id">
+                        <img :src="goods.goods_img" alt="" class="thumb">
+                    </label>
+                </div>
+            </div>
+            <div class="right">
+                <div class="top">{{goods.goods_name}}</div>
+                <div class="bottom">
+                    <div class="price">￥{{goods.goods_price.toFixed(2)}}</div>
+                    <div class="count">数量:{{goods.goods_count}}</div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+    export default {
+        name:'EsGoods',
+        props:['goods'],
+    }
+    </script>
+    <style lang="less" scoped>
+    .goods-container{
+        border-top: 1px solid #efefef;
+        display: flex;
+        padding-bottom: 10px;
+        .left{
+            margin-right: 10px;
+            .form-check{
+                .form-check-input{
+                    margin-top: 43px;
+                }
+                .form-check-label{
+                    .thumb{
+                        display: block;
+                        width:100px;
+                        height:100px;
+                        background-color: #efefef;
+                    }
+                }
+            }
+        }
+        .right{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex:1;
+            .top{
+                font-weight: bold;
+            }
+            .bottom{
+                display: flex;
+                justify-content: space-between;
+                align-content: center;
+                .price{
+                    color:red;
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+    </style>
+    ```
 1. 导入注册组件
     ```html
     <div class="goods-list" v-for="goods in goodsList" :key="goods.goods_id">
         <es-goods :goods="goods" :id="goods.goods_id"></es-goods>
     </div>
 
+    ```
+1. 封装自定义事件
+    ```html
+    <template>
+        ...
+        <input class="form-check-input" type="checkbox" value="" :id="'goods-'+goods.goods_id" :checked="goods.goods_state" @change="onInputChecked">
+    </template>
+    <script>
+        ...
+        emits:['goodsStateChange'],
+        methods:{
+            onInputChecked(){
+                this.$emit('goodsStateChange',{id:this.goods.goods_id,state:e.target.checked})
+            }
+        }
+    </script>
+    ```
+1. 父组件接收EsGoods组件商品状态
+    ```html
+    <template>
+        ...
+        <es-goods :goods="goods" :id="goods.goods_id" @goodsStateChange="onGoodsStateChange"></es-goods>
+    </template>
+    <script>
+        methods:{
+            onGoodsStateChange(e){
+                const goods = this.goodsList.find(item => item.goods_id === e.id)
+                if(goods){
+                    goods.goods_state = e.state
+                }
+            }
+        }
+    </script>
+    ```
+1. 父组件根据商品状态生成计算属性
+    ```html
+    <script>
+        computed:{
+            amount(){
+                let amount= 0
+                this.goodsList
+                    .filter(x => x.goods_state)
+                    .forEach(x => {
+                    amount += x.goods_price * x.goods_count
+                })
+                return amount
+            },
+            total(){
+                let total = 0
+                this.goodsList.filter(goods => goods.goods_state).forEach(goods => {
+                    //console.log(goods)
+                    total += goods.goods_count
+                })
+                return total
+            },
+            isfull(){
+                if(this.goodsList.filter(goods => !goods.goods_state).length > 0){
+                    return false
+                }else{
+                    return true
+                }
+            }
+        }
+    </script>
     ```
 #### 封装Counter组件
