@@ -2255,3 +2255,129 @@ export default {
     </script>
     ```
 #### 封装Counter组件
+1. 创建组件
+    ```html
+    <template>
+        <div class="input-group counter-container">
+            <button type="button" class="btn btn-secondary" @click="onSubClick">-</button>
+            <input type="number" class="form-control text-number"  v-model.number="num" >
+            <button type="button" class="btn btn-secondary" @click="onAddClick">+</button>
+        </div>
+    </template>
+    <script>
+    export default {
+        name:"EsCounter",
+        data(){
+            return{
+                num:this.number
+            }
+        },
+        props:{
+            number:{
+                type:Number,
+                default:0
+            }
+        },
+        emits:[
+            'goodsNumChange'
+        ],
+        watch:{
+            num( newV,oldV){
+                let parseVal = parseInt(newV)
+                if(isNaN(parseVal) || parseVal < 0){
+                    this.num = 0
+                    return
+                }
+                if(isNaN(parseVal) || parseVal >999){
+                    this.num = 999
+                    return
+                }
+                this.num = parseVal
+                this.$emit('goodsNumChange',this.num)
+            }
+        },
+        methods:{
+            onSubClick(){
+                if(this.num > 0){
+                    this.num --
+                }
+            },
+            onAddClick(){
+                if(this.num < 999) this.num ++
+            },
+        }
+    }
+    </script>
+    <style lang="less" scoped>
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { 
+        -webkit-appearance: none; 
+    }
+    /* 火狐浏览器 */
+    input[type="number"]{ 
+        -moz-appearance: textfield; 
+    }
+    .counter-container{
+        button{
+            width:35px;
+        }
+        .text-number{
+            min-width: 35px;
+            width: 40px;
+            text-align: center;
+            font-style: 12px;
+            padding: 5px;
+        }
+    }
+    </style>
+    ```
+1. 注册导入
+    ```html
+    <!-- EsGoods.vue -->
+    <div class="count">
+        <es-counter :number="goods.goods_count" @goodsNumChange="onGoodsNumChange"></es-counter>
+    </div>
+    ...
+    <script>
+    export default {
+        name:"EsGoods",
+        components: { EsCounter },
+        emits:['goodsStateChange'],
+        methods:{
+            onInputChecked(e){
+                const goodsTemp = this.goods
+                goodsTemp.goods_state = e.target.checked
+                //this.$emit('goodsStateChange',{id:this.goods.goods_id,state:e.target.checked})
+                this.$emit('goodsStateChange',goodsTemp)
+            },
+            onGoodsNumChange(e){
+                const goodsTemp = this.goods
+                goodsTemp.goods_count = e
+                this.$emit('goodsStateChange',goodsTemp)
+            }
+        }
+    }
+    </script>
+    ```
+1. 向上传值
+    1. 传递值给EsGoods
+        ```html
+        emits:[
+            'goodsNumChange'
+        ],
+        watch:{
+            num( newV){
+                let parseVal = parseInt(newV)
+                if(isNaN(parseVal) || parseVal < 0){
+                    this.num = 0
+                    return
+                }
+                if(isNaN(parseVal) || parseVal >999){
+                    this.num = 999
+                    return
+                }
+                this.num = parseVal
+                this.$emit('goodsNumChange',this.num)
+            }
+        },
+        ```

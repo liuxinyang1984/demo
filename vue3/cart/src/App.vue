@@ -2,7 +2,7 @@
     <div class="approot">
         <es-header estitle="购物车" :fsize=24></es-header>
         <div class="goods-list" v-for="(goods,index) in goodsList" :key="goods.goods_id">
-            <es-goods :goods="goods" :id="goods.goods_id" @goodsStateChange="onGoodsStateChange"></es-goods>
+            <es-goods :goods="goods" :id="goods.goods_id" @goodsStateChange="updateGoodsState"></es-goods>
         </div>
 
         <es-footer :amount="amount" :total="total" v-model:isfull="isfull" @fullChange="fullChange"></es-footer>
@@ -46,8 +46,9 @@ export default {
                 goods.goods_state = e.state
             }
             //console.log(this.goodsList)
-
-
+        },
+        updateGoodsState(e){
+            //const goods = this.goodsList.find(item => item.goods_id === e.goods_id)
         }
     },
     created(){

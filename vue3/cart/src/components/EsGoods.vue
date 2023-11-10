@@ -12,26 +12,33 @@
             <div class="top">{{goods.goods_name}}</div>
             <div class="bottom">
                 <div class="price">￥{{goods.goods_price.toFixed(2)}}</div>
-                <div class="count">数量:{{goods.goods_count}}</div>
+                <div class="count">
+                    <es-counter :number="goods.goods_count" @goodsNumChange="onGoodsNumChange"></es-counter>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import EsCounter from "./EsCounter.vue"
 export default {
-    name:'EsGoods',
+    name:"EsGoods",
+    components: { EsCounter },
     props:['goods'],
     emits:['goodsStateChange'],
     methods:{
         onInputChecked(e){
             console.log('EsGoods:点击')
-            //console.log("赋值前:"+this.goods.goods_state)
-            //console.log('传参值:'+e.target.checked)
-            //const goodsTemp = this.goods
-            //goodsTemp.goods_state = e.target.checked
-            //console.log("赋值后:"+goodsTemp.goods_state)
-            this.$emit('goodsStateChange',{id:this.goods.goods_id,state:e.target.checked})
+            const goodsTemp = this.goods
+            goodsTemp.goods_state = e.target.checked
+            this.$emit('goodsStateChange',goodsTemp)
+        },
+        onGoodsNumChange(e){
+            console.log("商品数量变化:")
+            const goodsTemp = this.goods
+            goodsTemp.goods_count = e
+            this.$emit('goodsStateChange',goodsTemp)
         }
     }
 }
