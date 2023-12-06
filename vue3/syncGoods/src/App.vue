@@ -12,7 +12,8 @@
         <tbody>
             <tr v-for="page in pageList" :key="page.page">
                 <td>{{page.page}}</td>
-                <td>{{page.status}}</td>
+
+                <td class="status" :class="page.status">{{page.status}}</td>
                 <td>
                     <input type="button" value="同步" @click="syncPage(page.page)">
                 </td>
@@ -55,7 +56,13 @@ export default {
             console.log('参数:'+page)
             const {data:res}= await this.$http.get('/sync/'+page)
             if(res.code !=200) return alert(res.msg)
-            console.log(res)
+            console.log("msg")
+            console.log(res.data.msg)
+            if(res.data.msg == "页采集完成."){
+                this.pageList[page-1].status="done"
+            }else{
+                this.pageList[page-1].status="error"
+            }
         }
     },
     created(){
@@ -64,3 +71,13 @@ export default {
     }
 }
 </script>
+
+
+<style scoped>
+.error{
+    color: red;
+}
+.done{
+    color:green;
+}
+</style>
