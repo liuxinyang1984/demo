@@ -56,5 +56,6 @@ Route::prefix('task')->name('task.')->group(function(){
 
 Route::prefix('data')->name('data.')->group(function(){
     Route::any('/',[\App\Http\Controllers\DataController::class,'index']);
+    Route::any('model',[\App\Http\Controllers\DataController::class,'model']);
 });
 

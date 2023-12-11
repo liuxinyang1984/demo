@@ -43,10 +43,69 @@ class DataController extends Controller
         $users = $users->addSelect('gender')->get();
 
 
+        //
         $users = DB::table('users')->select(DB::raw('COUNT(*) as count,gender'))
             ->groupBy('gender')
             ->havingRaw('count > 5')
             ->get();
-        return $users;
+        $users = DB::table('users')->leftJoin('books','users.id','=','books.user_id')
+                                   ->leftJoin('profiles','users.id','=','profiles.user_id')
+                                   ->select('users.id','users.username','books.title','profiles.hobby')
+                                   ->get();
+
+        $res = DB::table('users')->updateOrInsert(
+            ['id'=>101],
+            [
+                'list->id' => 22
+            ]);
+        return $res;
+    }
+    public function model(){
+        //$user = User::all()->toArray();
+        //$user= User::all
+        //dd($user);
+        // $user = new User();
+        // $user->username = '艾德-史塔克';
+        // $user->password = '123';
+        // $user->email = 'stack@north';
+        // $user->details = "model save";
+        // $user->save();
+        // $user = User::find(308);
+        // $user->username='罗柏-史塔克';
+        // $user->save();
+
+        // $users = User::where('username','辉夜')
+            // ->update([
+                // 'username'=>'提利昂-兰尼斯特'
+            // ]);
+        // User::create([
+            // 'username' => '布兰登-史塔克',
+            // 'password' => '123',
+            // 'email'     => 'brandon@north',
+            // 'details'   => 'create'
+        // ]);
+        //
+        // $user = User::find(80);
+        // $res = $user->delete();
+        // $res = User::destroy(100);
+        // $users  = User::where('username','like','%洋%');
+        // $res = $users->delete();
+
+
+
+        // $request = [
+            // 'username' => '班扬-史塔克',
+            // 'password' => '123',
+            // 'email'     => 'benjen@north',
+            // 'details'   => 'create',
+            // 'slogan'    => 'winner is comming',
+            // 'age'       => '46'
+        // ];
+        // $res = User::create($request);
+        // $users = User::where('username','like','%孙%');
+        // $res = $users->delete();
+        //User::destroy([24,25,26,27]);
+        $user = User::gender('女')->where('price','>','60')->get()->toArray();
+        return dd($user);
     }
 }

@@ -657,27 +657,32 @@ php artisan route:list
     ```php
     $user = DB::table('users');
     ```
+
 - get()    
     查询当前表所有数据
     ```php
     $user = DB::table('users')->get();
     ```
+
 - first()    
     查询第一条数据
     ```php
     $user = DB::table('users')->first();
     ```
+
 - value(字段名)    
     获取到第一条数据的字段值
     ```php
     $user = DB::table('users')->value('email');
     $user = DB::table('users')->where('id',20)->value('email');
     ```
+
 - find()    
     获取指定id的一条数据
     ```php
     $user = DB::table('users')->find(20);
     ```
+
 - pluck(字段名)    
     获取所有数据单列值的集合
     ```php
@@ -762,6 +767,319 @@ return DB::table('users')->where('id',20)->doesntexists();
     ```
 
 #### where查询
+
+#### 子查询
+
+#### join查询
+1. join查询
+    ```php  
+    $user= DB::table('users')
+        ->join('books','users.id','=','books.id')
+        ->join('profiles','user.id','=','profiles.user_id')
+        ->select('user.id','users.name','user.email','books.title','profiles.hobby')
+        ->get();
+    ```
+
+### 新增
+1. insert()
+    - 新增一条记录
+        ```php
+        DB::table('users')->insert([
+            'username'=>'洋哥',
+            'email'=>'yange@localhost',
+            'password' => '123456',
+            'details' => '123'
+        ]);
+        ```
+    - 新增多条记录
+        ```php
+        DB::table('users')->insert([
+            [...],
+            [...]
+        ]);
+        ```
+1. insertOrIgnore()    
+当插入数据有错误时,可以忽略错误
+    ```php
+    DB::table('users')->insertOrIgnore([
+        // id10数据已存在
+        'id' => 20,
+        'username'=>'洋哥',
+        'email'=>'yange@localhost',
+        'password' => '123456',
+        'details' => '123'
+    ]);
+    ```
+1. insertGetId()    
+获取新增后的id
+    ```php
+    $id = DB::table('users')->insertGetId([
+        'username'=>'洋哥',
+        'email'=>'yange@localhost',
+        'password' => '123456',
+        'details' => '123'
+    ]);
+    ```
+### 修改
+1. updata()    
+通过条件更新一条数据
+    ```php
+    DB::table('users')->where('id',307)
+        ->update([
+            'username' => "洋嫂",
+            'email' => 'yangsao@localhost'
+        ]);
+    ```
+1. updataOrInsert()    
+如果满足第一个参数就修改,不满足就为新增
+    ```php
+    $res = DB::table('users')->updateOrInsert(
+        ['id'=>102],
+        [
+            'username'=>'洋妹',
+            'password' => '123456',
+            'email'=>'yangMM@localhost',
+            'details'=>'updataOrinsert'
+        ]);
+    return $res;
+    ```
+1. json数据的修改
+    ```php
+    DB::table('users')->where('id',307)
+        ->update([
+            'list->id' => 20
+        ]);
+    ```
+1. increment()/decrement()    
+自增和自减,第二个参数可设置步进 
+    ```php
+    DB::table('users')->where('id',206)->increment('price');
+    DB::table('users')->where('id',206)->increment('price',2);
+    ```
+### 删除
+- delect()    
+删除数据,如果不加where条件,会清空表
+    ```php
+    DB::table('user')->where('id',307)->delect();
+    ```
+- truncate()    
+清空数据表
+    ```php
+    DB::table('user')->truncate();
+    ```
+
+## 模型
+框架使用Eloquent ORM关系对象模型
+### 模型基础
+1. 创建模型
+    ```shell
+    php artisan make:model Http/Models/User
+    ```
+1. 表名默认遵循复数规则,也可以指定为特定表名
+    ```php
+    class User extends Model{
+        protected $table = 'user';
+    }
+    ```
+1. 系统假定主键为id,也可以指定默认主键
+    ```php
+    protected $primaryKey = "xid";
+    ```
+
+1. 如果使用非自增,非数值类型主键,可以设置取消
+    > 系统假定主键id为自增貹,意味着主键会自动转换为int类型
+    ```php
+    public $incrementing = false;
+    ```
+1. 如果主键不是一个整数,那么需要设置$keyType设置string
+    ```php
+    protected $keyType='string';
+    ```
+1. 系统默认情况下会接管create_at和updated_at两个时间列,如果不想让系统干涉,可以设置false取消
+    ```php
+    public $timestamps = false;
+    ```
+1. 自定义时间戳格式,可以设置
+    ```php
+    protected $dataFormat = 'U';
+    ```
+1. 更改创建时间create_at和更新时间updated_at字段名
+    ```php
+    const CREATED_AT = 'create_time';
+    const UPDATED_AT = 'update_time';
+    ```
+1. 默认读取database.php配置的数据库连接,也可以在模型端局部更改
+    ```php
+    protected $connection = 'mysql';
+    ```
+### 模式定义
+- 模型和构造器的操作基本相同,如查询所有数据
+    ```php
+    $user = User::get();               //或者all() 
+    return [$user];
+    ```
+- 可以像查询构造器一样,添加各种各样的条件
+    ```php
+    $user = User::where([
+        ['gender','=','男'],
+        ['price','>',95]
+    ])->limit(2)->get();
+    ```
+- 模型没有代码提示,可以通过安装插件解决
+    ```shell
+    composer require barryvdh/laravel-ide-helper
+    php artisan ide-helper:generate //为Facades生成注释
+    php artisan ide-helper:model    //为Model生成注释
+    php artisan ide-helper:meta     //生成phpStorm Meta file
+    ```
+- 查询方法
+    1. find(1)      //通过主键查询
+    1. first        //查询第一个结果
+    1. firstWhere   //打到查询中的首个
+    1. find[1,2,3]  //通过数组查找
+    1. firstOr()    //查询首个返回,支持闭包
+    1. firstOrFail()//查询不到时返回异常
+### 模型新增和修改
+1. save()    
+    - 新增
+    > 默认模型会接管created_at和updated_at
+    ```php
+    $user = new User();
+    $user->username = '艾德-史塔克';
+    $user->password = '123';
+    $user->email='stack@north';
+    $user->details = 'Model save';
+    $user->save();
+    ```
+    - 更新
+    在查找到一条数据的情况下,save()直接会更新数据
+    ```php
+    $user = User::find(321);
+    $user->username='罗柏-史塔克';
+    $user->save();
+    ```
+1. update()    
+    批量更新
+    ```php
+    User::where('username','辉夜')
+        ->update([
+            'username'=>'提利昂-兰尼斯特',
+        ]);
+    ```
+1. create()    
+create()方法实现新增,需要在模型设置批量赋值许可
+    ```php
+    User::create([
+        'username' => '布兰登-史塔克',
+        'password' => '123',
+        'email'     => 'brandon@north',
+        'details'   => 'create'
+    ]);
+    ```
+    ```php
+    //User.php
+    //设置填充许可
+    protected $fillable = [
+        'username','password','email','details'
+    ];
+    ```
+        
+### 模型的删除
+1. delete()    
+    ```php
+    $users = User::find(321);
+    $users->delete();
+    ```
+1. destroy()    
+通过主键删除,可以使用destroy(id),免去查询操作
+    ```php
+    User::destroy(322);
+    User::destroy([1,2,3]);
+    ```
+
+### 批量赋值
+当批量处理前端发来的请求时,如果设置了$fillable以后,可以忽略掉多余的信息
+```php
+$request = [
+    'username' => '班扬-史塔克',
+    'password' => '123',
+    'email'     => 'benjen@north',
+    'details'   => 'create',
+    'slogan'    => 'winner is comming',
+    'age'       => '46'
+];
+User::create($request);
+```
+
+### 软删除
+1. 在数据库创建一个字段为deleted_at,用于判断是否被软删除
+    ```mysql
+    ALTER TABLE laravel_users
+    ADD COLUMN deleted_at default null;
+    ```
+1. 开启软删除
+    ```php
+    use SoftDeletes
+    ```
+1. 开启软删除后,删除操作会变成更新操作,给deleted_at赋值
+    ```php
+    $users = User::where('username','like','%孙悟%')->get();
+    $users->delete();
+    ```
+    ```php
+    User::destroy(76);
+    ```
+    ![SoftDelete](./images/softDelete.png)
+1. 开启软件删除后,正常的数据获取,会自动隐藏软件删除数据
+1. 如要需要查询包含软删除的数据,通过withTrashed()方法实现
+    ```php
+    $users = User::withTrashed()->get();
+    ```
+    ```php
+    //即使没有被软删除的数据也能查询到
+    $user = User::withTrashed()->find(24);
+    ```
+1. 如果只想查询软删除数据,可以通过onlyTrashed()方法
+    ```php
+    $users = User::onlyTrashed()->get();
+    ```
+    ```php
+    //只有软删除的数据才被查询到
+    $user = User::onlyTrashed()->find('24');
+    ```
+1. 如果将软删除的数据恢复正常,使用restore()
+    ```php
+    $user = User::onlyTrashed()->find(24);
+    $user->restore();
+    ```
+1. 开启了软删除,使用forceDelete()方法可以永久删除
+    ```php
+    $user = User::onlyTrashed()->find(24);
+    $user->forceDelete();
+    ```
+
+### 模型的查询作用域
+在数据查询时,被重复使用的一部分条件,可以用查询作用域来完成
+1. 本地作用域    
+    - 简单模式    
+    查询条件性别为男
+    ```php
+    // User.php
+    public function scopeGenderMale($query){
+        $query->where('gender','男');
+    }
+    ```
+    ```php
+    $user = User::genderMale()->where('price','>',90)->get();
+    ```
+    - 参数模式
+    ```php
+    public function scopeGender($query,$gender){
+        $query->where('gender',$gender)
+    }
+
+
+
 
 
 
