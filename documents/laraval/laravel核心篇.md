@@ -1077,12 +1077,518 @@ User::create($request);
     public function scopeGender($query,$gender){
         $query->where('gender',$gender)
     }
+    ```
+1. 全局作用域
+    - 全局类
+        1. 在APP目录下创建一个用于全局作用域的目录Scopes
+            ```shell
+            mkdir App/Scopes
+            ```
+        1. 创建一个用于设置全局作用域的类,需要实现scope接口
+            ```php
+            namespace App\Scopes;
+
+            use Illuminate\Database\Eloquent\Builder;
+            use Illuminate\Database\Eloquent\Model;
+            use Illuminate\Database\Eloquent\Scope;
+
+            class StatusScope implements Scope{
+                public function apply(Builder $builder, Model $model)
+                {
+                    $builder->where('status',1);
+                }
+            }
+            ```
+        1. 在需要的类启用全局域
+            ```php
+            protected static function booted(){
+                parent::booted();
+                static::addGlobalScope(new StatusScope());
+            }
+            ```
+    1. 单一类,闭包作用域
+        ```php
+        protected static function booted(){
+            static::addGlobalScope('status',function(Builder $builder){
+                $builder->where('status',1);
+            });
+        }
+        ```
+    1. 不使用全局条件
+        ```php
+        //单一类
+        $user = User::withoutGlobalScope('status')->get();
+        ```
+        ```php
+        //全局类
+        $user = User::withoutGlobalScope(StatusScope::class)->get();
+        ```
+        > withoutGlobalScope([...])可以传递多个参数
+
+### 模型的访问器
+访问器就是在获取数据列表时,拦截属性并对属性修改的过程
+1. 实现在性别左右加上括号
+    ```php
+    public function getGenderAttribute($value){
+        return '['.$value.']';
+    }
+    ```
+    > 访问器前面固定get,后面固定Attribute,中间为字段名    
+    > 参数是原字段值,可以修改返回    
+    > 如果字段中间有下划线如user_name,那么方法名为getUserNameAttribute()
+1. 添加虚拟字段
+    1. 为模型追加字段
+        ```php
+        protected $appends = ['info'];
+        ```
+    1. 添加虚拟字段访问器
+        ```php
+        public function getInfoAttribute(){
+            return "Winter is comming";
+        }
+        ```
+        > 如果使用的字段,经过访问器修改那么用属性调用的值为修改后的结果
+        > 如果想使用原字段,可以使用$this->attributes['gender']来访问原字段
+        
+### 修改器
+修改器是在写入的时候拦截,进行修改后再写入
+1. 字段修改器
+    ```php
+    public function setEmailAttribute($val){
+        $this->attrbutes['email'] = strtoupper($val);
+    }
+    ```
+
+### 转换器
+1. 添加默认日期列(以日期的格式写入)
+    ```php
+    protected $dates=[
+        'details'
+    ]
+    ```
+1. 设置字段输出类型(已布尔类型输出)
+    ```php
+    protected $casts=[
+        'details' => 'boolean'
+    ]
+    ```
+
+### 集合
+集合是一种更具读取性和处理能力的数组封装,数据集合提供了大量的方法方便各种操作.除了数据库对象的数据集合之外,也可以自行创建数据集合.
+```php
+$collection  = collect(['龙妈','小指头','太监',null]);
+//查看类型
+dd($conllection);
+//直接return可以返回
+return $conllection;
+```
+#### 常用方法
+- all()    
+以底层数组输出
+- avg()    
+返回平均值
+    ```php
+    //返回平均值
+    $collection = collect([1,2,3,4]);
+    $return $collection->avg();
+    ```
+    ```php
+    //返回分级平均值
+    $collection = collect([['男'=>1],['女'=>1],['男'=>3]]);
+    return $collection->avg('男');
+    ```
+- count()    
+返回集合总数
+    ```php
+    return $collention->count();
+    ```
+- countBy()    
+返回数值出现的次数或者回调函数指定值出现的次数
+    1. 返回值出现的次数
+        ```php
+        $collection = [1,1,3,3,3,3]
+        return $collection->countBy();
+        ```
+    结果:
+        ```json
+        {
+          "1": 2,
+          "3": 4
+        }
+        ```
+    1. 搜索回调函数指定片段的次数
+        ```php
+        $collection = collect(['xiaoxin@163.com','yihui@163.com','xiaoying@qq.com']);
+        return $collection->countBy(function($val){
+            return substr(strrchr($val,'@'),1);
+        });
+        ```
+- diff()    
+返回集合中不同的部分
+    ```php
+    $collection = collect([1,2,3,4,5]);
+    return $collection->diff([3.5]);
+    ```
+结果:
+    ```json
+    {
+      "0": 1,
+      "1": 2,
+      "3": 4
+    }
+    ```
+> 派生方法:diffAssoc() diffKeys()
+
+- duplicates()    
+返回重复的值
+    ```php
+    $collection = collect([1,2,2,3,4,5,5,6]);
+    return $collection->duplicates();
+    ``` 
+结果:
+    ```php
+    {
+      "2": 2,
+      "6": 5
+    }
+    ```
+
+- first()    
+返回成立后的第一个值
+    ```php
+    $collection = collect([1,2,3,4,5]);
+    return $collection->first(function($val){
+        return $val > 2;
+    });
+    ```
+结果:3
+- flatten()    
+将多维数组转换成一维
+- get()
+通过键名查找值
+    ```php
+    return $collection->get('name');
+    ```
+- has()    
+判断集合中是否存在指定键
+    ```php
+    return $collection->has('龙妈');
+    ```
+- pop()     
+移出集合中的最后一个值
+> 派生: pull() push() put()
+
+- slice()    
+返回指定值后续的集合
+    ```php
+    $collection = collect([1,2,2,3,4,5,5,6]);
+    return $collection->slice('3');
+    ```
+结果:
+    ```json
+    {
+      "3": 3,
+      "4": 4,
+      "5": 5,
+      "6": 5,
+      "7": 6
+    }
+    ```
+- sort()    
+返回排序后的集合
+> 派生方法: sortBy() sortByDesc() sortKeys()
+
+- where()    
+和数据库一样,条件查询
+- map()    
+类似访问器,可以修改输出
+    ```php
+    retrun $collection->map(function($val,$key){
+        return $key.'['.$val.']';
+    });
+    ```
+- reject()
+移除特定值
+    ```php
+    retrun $collection->reject(function($val,$key){
+        return $val === null;
+    });
+    ```
+- filter()    
+筛选特定值
+    ```php
+    return $collection->filter(function($val,key){
+        return $val != null;
+    });
+    ```
+- search()    
+找到后返回__[key]__,找不到返回false
+    ```php
+    return $collection->search('王五');
+    ```
+- chunk()    
+分割集合
+    ```php
+    return $collection->chunk(2);
+    ```
+- each()
+迭代输出?感觉像是遍历
+    ```php
+    $collection->each($val){
+        return $val;
+    }
+    ```
+- 自定义方法
+    ```php
+    Collection::macro('toUpper',function(){
+        return $this->map(function ($val){
+            return strtoupper($val);
+        });
+    });
+
+    return $collection->toUpper();
+    ```
+### 模型的数据集合
+- contains()    
+判断集合中是否包含指定模型实例
+- diff()    
+返回不在集合中的所有模型
+- except()    
+返回给定主键外的所有模型
+- modelKeys()     
+返回所有模型的主键
+- only()    
+返回给定主键的模型
+- unique()    
+返回集合中的唯一模型
 
 
 
+### 模型关联
+#### 一对一关联
+##### 正向关联
+1. 生成Profile模型
+    ```shell
+    php artisan make:model Http/Models/Profile
+    ```
+1. 主模型实现一对一关联
+    ```php
+    //User.php
+    public function profile(){
+        return $this->hasOne(Profile:class,'user_id','id');
+    }
+    ```
+1. 调用
+    ```php
+    $profile = User::find(19)->profile;
+    return $profile;
+    ```
+##### 副表反向关联
+1. 副模型实现一对一关联
+    ```php
+    //Profile.php
+    public function user(){
+        return $this->belongTo(User::class,'user_id','id')
+    }
+    ```
+1. 调用
+    ```php
+    $user = Profile::find(19)->user;
+    dd ($user);
+    ```
+#### 一对多关联
+##### 正向关联
+1. 创建模型
+    ```shell
+    php artisan make:model Http/Model/Book
+    ```
+1. 实现关联
+    ```php
+    //User.php
+    public function boos(){
+        return $this->hasMany(Book::class,'user_id','id');
+    }
+    ```
+1. 调用
+    ```php
+    $books = User::find(19)->book;
+    dd($books);
+    ```
+    返回是一个集合
+    ```json
+    [
+      {
+        "id": 1,
+        "user_id": 19,
+        "title": "《莎士比亚》"
+      },
+      {
+        "id": 10,
+        "user_id": 19,
+        "title": "《热情天堂》"
+      },
+      {
+        "id": 11,
+        "user_id": 19,
+        "title": "《完美人生》"
+      },
+      {
+        "id": 29,
+        "user_id": 19,
+        "title": "《哈利波特》"
+      }
+    ]
+    ```
+1. 结果集合的操作
+    ```php
+    $books = User::find(19)->book()->where('title','like','%莎%')->get();
+    return $books;
+    ```
 
+##### 反向关联
+1. 实现关联
+    ```php
+    //Book.php
+    public function user(){
+        return $this->belongTo(User::class,'user_id','id');
+    }
+    ```
+1. 反向调用
+    ```php
+    $users = Book::find(1)->user;
+    return $users;
+    ```
+#### 多对多关联
+##### 正向关联
+1. 创建模型
+    ```shell
+    php artisan make:model Http/Model/Role
+    ```
+1. 创建关联
+    ```php
+    //User.php
+    /* belongsToMany有5个参数
+     * 关联模型
+     * 中间表 role_user,以主副表名为表名的,可以省略
+     * 中间表,主模型id (user_id)
+     * 中间表,副模型id (role_id)
+     * 主模型id
+     */
+    public function role(){
+        return $this->belongsToMany(Role::class);
+    }
+    ```
+1. 引用
+    ```php
+    $roles = User::find(19)->role;
+    return $roles;
+    ```
+##### 反向关联
+1. 创建关联
+    ```php
+    //Rule.php
+    public function user(){
+        return $this->belongsToMany(User::class,'role_user','role_id','user_id','id');
+    }
+    ```
+1. 引用 
+    ```php
+    $users = Role::find(1)->user;
+    return $users;
+    ```
+#### 中间字段
+多对多会生成一个中间字段pivot,里面包含多对多的双id,如果想要pivot字段包含更多的中间表字段,可以自行添加.还可以修改字段名
+```php
+return $this->belongsToMany(Role::class)->withPivot('details','id')->as('pivot_name');
+```
 
+###  模型的关联查询
+- has()    
+查询某些条件下的关联查询数据
+    - 查询有关联书籍的用户
+        ```php
+        //
+        $users = User::has('book')->get();
+        return $users;
+        ```
+    生成的sql
+        ```mysql
+        select * from `laravel_users` where exists (select * from `laravel_books` where `laravel_users`.`id` = `laravel_books`.`user_id`)
+        ```
+    - 查询至少超过3条的用户
+        ```php
+        $users = User::has('book','>=',3)->get();
+        return $users;
+        ```
+- whereHas()    
+闭包查询关联
+    ```php
+    $users = User::whereHas('book',function($query){
+        $query->where('user_id',19);
+    })->get();
+    ```
+- doesntHave()    
+has的反向操作
+- whereDoesntHave()    
+whereHas的反向操作
+- withCount()    
+关联统计
+    ```php
+    $users = User::withCount('book')->get();
+    return $users;
+    ```
+结果:
+    ```json
+    [
+         {
+           "id": 19,
+           "username": "蜡笔小新",
+           "password": "123",
+           "gender": "男",
+           "email": "xiaoxin@163.com",
+           "price": "60.00",
+           "details": "123",
+           "uid": 1001,
+           "status": -1,
+           "list": "{\"id\": 19, \"uid\": 1010}",
+           "deleted_at": null,
+           "created_at": "2016-06-27T16:45:26.000000Z",
+           "updated_at": "2016-06-27T16:45:26.000000Z",
+           "book_count": 4
+         },
+         {
+           "id": 20,
+           "username": "路飞",
+           "password": "123",
+           "gender": "男",
+           "email": "lufei@163.com",
+           "price": "70.00",
+           "details": "123",
+           "uid": 1002,
+           "status": 0,
+           "list": null,
+           "deleted_at": null,
+           "created_at": "2016-06-27T16:55:56.000000Z",
+           "updated_at": "1997-01-01T01:01:01.000000Z",
+           "book_count": 1
+         },
+         ...
+    ]
+    ```
+统计多条:
+    ```php
+    $users = User::withCount(['book','profile as pro'])->get();
+    return $users;
+    ```
 
-    
+## 调试器
+1. 安装
+    ```shell
+    composer require barryvdh/laravel-debugbar
+    ```
+1. 生成一个配置文件
+    ```shell
+    php artican vendor:publish --provider="Barryvdh\Debugbar\ServiceProvider"
+    ```
 
 

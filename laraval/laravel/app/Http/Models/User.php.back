@@ -2,8 +2,11 @@
 
 namespace App\Http\Models;
 
+use App\Scopes\StatusScope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * App\Http\Models\User
@@ -37,23 +40,45 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUsername($value)
- * @property-read \App\Http\Models\Profile|null $profile
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Http\Models\Book> $book
- * @property-read int|null $book_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Http\Models\Role> $role
- * @property-read int|null $role_count
  * @mixin \Eloquent
  */
 class User extends Model
 {
+
     use HasFactory;
-    public function profile(){
-        return $this->hasOne(Profile::class);
+    use SoftDeletes;
+    protected $appends = ['info'];
+
+    // protected $table = 'laravel_users';
+    protected $fillable = [
+        'username','password','email','details'
+    ];
+    public function scopeGenderMale($query){
+        return $query->where('gender','男');
     }
-    public function book(){
-        return $this->hasMany(Book::class);
+    public function scopeGender($query,$gender){
+        $query->where('gender',$gender);
     }
-    public function role(){
-        return $this->belongsToMany(Role::class)->withPivot('details','id');
+    protected static function booted(){
+        parent::booted();
+        static::addGlobalScope(new StatusScope());
+        //static::addGlobalScope('status',function(Builder $builder){
+        //    $builder->where('status',1);
+        //});
+    }
+
+    //性别访问器
+    public function getGenderAttribute($val){
+        return '['.$val.']';
+    }
+
+    //虚拟字段
+    public function getInfoAttribute(){
+        return 'Winter is comming';
+    }
+
+    //邮箱修改器,将邮件改为大写
+    public function setEmailAttribute($val){
+        $this->attributes['email'] = strtoupper($val);
     }
 }

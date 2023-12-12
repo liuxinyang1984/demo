@@ -2,10 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Models\Book;
+use App\Http\Models\Profile;
+use App\Http\Models\Role;
 use App\Http\Models\User;
+use App\Scopes\StatusScope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use PhpParser\ErrorHandler\Collecting;
 use PhpParser\Node\Stmt\Foreach_;
 
 class DataController extends Controller
@@ -48,10 +55,11 @@ class DataController extends Controller
             ->groupBy('gender')
             ->havingRaw('count > 5')
             ->get();
-        $users = DB::table('users')->leftJoin('books','users.id','=','books.user_id')
-                                   ->leftJoin('profiles','users.id','=','profiles.user_id')
-                                   ->select('users.id','users.username','books.title','profiles.hobby')
-                                   ->get();
+        $users = DB::table('users')
+            ->leftJoin('books','users.id','=','books.user_id')
+            ->leftJoin('profiles','users.id','=','profiles.user_id')
+            ->select('users.id','users.username','books.title','profiles.hobby')
+            ->get();
 
         $res = DB::table('users')->updateOrInsert(
             ['id'=>101],
@@ -105,7 +113,63 @@ class DataController extends Controller
         // $users = User::where('username','like','%孙%');
         // $res = $users->delete();
         //User::destroy([24,25,26,27]);
-        $user = User::gender('女')->where('price','>','60')->get()->toArray();
-        return dd($user);
+        //$user =User::withoutGlobalScope(StatusScope::class)->get();
+        //return $user;
+        User::create([
+            'username' => '布兰登-史塔克',
+            'password' => '123',
+            'email'     => 'brandon@north',
+            'details'   => 'create'
+        ]);
+    }
+    public function collection(){
+        $collection = collect(['龙妈','小指头','小恶魔',null,'Mr.Cookie']);
+        // dd($collection);
+        //dd ($collection->map(function($val,$key){
+        //    return $key.'['.$val.']';
+        //})->all());
+        // dd ($collection->reject(function($val,$key){
+            // return $val === null;
+        // })->all());
+        // dd ($collection->filter(function($val,$key){
+            // return $val === null;
+        // })->all());
+        // dd ($collection->search('小指头'));
+        //return $collection->chunk(2);
+        // Collection::macro('toUpper',function(){
+            // return $this->map(function($val){
+                // return strtoupper($val);
+            // });
+        // });
+        // dd($collection->count());
+        // $collection = collect([1,1,3,3,3,3]);
+        // return $collection->countBy();
+
+        // $collection = collect(['xiaoxin@163.com','yihui@163.com','xiaoying@qq.com']);
+        // return $collection->countBy(function($val){
+            // return substr(strrchr($val,'@'),1);
+        // });
+        // $collection = collect([1,2,3,4,5]);
+        // return $collection->diff([3,5]);
+
+        // $collection = collect([1,2,3,4,5,6]);
+        // return $collection->slice('3');
+
+
+        // $profiles = User::find(19)->profile;
+        // return $profiles;
+        // $user = Profile::find(1)->user;
+        // return $user->profile;
+
+        // $books = User::find(19)->book()->where('title','like','%莎%')->get();
+        // return $books;
+        // $roles  = User::find(19)->role;
+        // return $roles;
+        // // $user = Role::find(1)->user;
+        // return $user;
+        // $books = User::find(19)->book;
+        // return $books;
+        $user = User::withCount('book')->get();
+        return $user;
     }
 }
