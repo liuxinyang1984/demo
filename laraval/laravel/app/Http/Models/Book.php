@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Book extends Model
 {
+    protected $guarded=[];
+    public $timestamps = false;
     use HasFactory;
     public function user(){
         return $this->belongsTo(User::class,'user_id','id');

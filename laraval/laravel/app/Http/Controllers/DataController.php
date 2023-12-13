@@ -7,6 +7,7 @@ use App\Http\Models\Profile;
 use App\Http\Models\Role;
 use App\Http\Models\User;
 use App\Scopes\StatusScope;
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -169,7 +170,33 @@ class DataController extends Controller
         // return $user;
         // $books = User::find(19)->book;
         // return $books;
-        $user = User::withCount('book')->get();
-        return $user;
+        // $user = User::withCount('book')->get();
+        // return $user;
+        //
+        // $books = Book::with('user')->get();
+        // foreach($books as $book){
+            // if ($book->user != null) Debugbar::info($book->user->username);
+        // }
+        // return view('data');
+        // $user = User::find(99);
+        // $user->book()->update(
+            // ['title'=>'《手镯王》']
+        // );
+
+
+        //$user = User::find(20);
+        //$book = Book::find(30);
+        //$book->user()->associate($user);
+        //$book->save();
+        // $book = Book::find(30);
+        // $book->user()->dissociate();
+        // $book->save();
+
+        $user = User::find(99);
+        $roleId = 1;
+        $user->role()->sync([1,2,3],['details'=>['你','我','他']]);
+
+
+        return view('data');
     }
 }

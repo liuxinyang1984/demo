@@ -59,4 +59,18 @@ Route::prefix('data')->name('data.')->group(function(){
     Route::any('model',[\App\Http\Controllers\DataController::class,'model']);
     Route::any('collection',[\App\Http\Controllers\DataController::class,'collection']);
 });
+Route::prefix('user')->name('user.')->group(function(){
+    Route::any('/',[\App\Http\Controllers\UserController::class,'index']);
+    Route::any('/{id}/{uid}',[\App\Http\Controllers\UserController::class,'index']);
+    Route::any('/form',[\App\Http\Controllers\UserController::class,'form']);
+    Route::any('/url',[\App\Http\Controllers\UserController::class,'url']);
+    Route::any('/url/{id}',[\App\Http\Controllers\UserController::class,'url'])->name('url.id');
+    Route::any('/cookie',[\App\Http\Controllers\UserController::class,'cookie']);
+    Route::any('/sess',[\App\Http\Controllers\UserController::class,'sess']);
+});
+Route::any('/admin/login',[\App\Http\Controllers\LoginController::class,'login'])->name('admin.login');
+Route::prefix('admin')->name('admin.')->middleware('check')->group(function(){
+    Route::any('/',[\App\Http\Controllers\LoginController::class,'index']);
+});
 
+Route::any('/tttt',[\App\Http\Controllers\LoginController::class,'index'])->middleware('check');

@@ -1581,7 +1581,7 @@ whereHas的反向操作
     return $users;
     ```
 
-## 调试器
+### 调试器
 1. 安装
     ```shell
     composer require barryvdh/laravel-debugbar
@@ -1591,4 +1591,361 @@ whereHas的反向操作
     php artican vendor:publish --provider="Barryvdh\Debugbar\ServiceProvider"
     ```
 
+### 预加载
+这段是关于sql查询效率及优化的,后期需要重新整理复习
+1. 预加载
+    ```php
+    $books = Book::with('user')->get();
+    foreach($book as $book){
+        Debugar::info($book->user->username);
+    }
+    ```
+1. 延迟预加载
+    ```php
+    $books = Book::get();
+    if(需要查询关联对象的时候){
+        $books =$books->load('user');
+        foreach($book as $book){
+            Debugar::info($book->user->username);
+        }
+    }
+    ```
+1. 延迟预统计
+    ```php
+    $users = User::get();
+    if(需要统计关联对象的时候){
+        return $users->loadCount('book');
+    }
+    ```
+### 模型关联写入
+1. 打开批量赋值
+    ```php
+    //Book.php
+    protected $guarded = [];
+    ```
+1. 取消自动时间字段
+    ```php
+    //Book.php
+    public $timestamps = false;
+    ```
+1. save()方法关联写入
+    1. 写入单个数据
+    ```php
+    $user = User::find(19);
+    $user->book()->save(new Book([
+        'title'=>'冰与火之歌'
+    ]));
+    ```
+    1. 写入多个数据
+    ```php
+    $user = User::find(19);
+    $user->book()->save(
+        new Book(['title'=>'冰与火之歌'],
+        new Book(['title'=>'权力的游戏'],
+    ));
+    ```
+1. create()方法写入
+    ```php
+    $user->book->create([
+        'title'=>'哈利波特'
+    ]);
+    ```
+    ```php
+    $user->book->createMany([
+        ['title'=>'指环王'],
+        ['title'=>'霍比特人']
+    ]);
+    ```
 
+> 派生方法: findOrNew firstOrnew firstOrCreate updateOrCreate
+
+###  关联删除及修改
+- 删除
+    ```php
+    $user = User::find(99);
+    $user->book()->delete();
+    ```
+- 修改
+    ```php
+    $user = User::find(99);
+    $user->book()->update([
+        'title'=>'《手镯王》'
+    ]);
+    ```
+- 修改关联
+    ```php
+    $user = User::find(20);
+    $book = Book::find(11);
+    $book->user()->associate($user);
+    $book->save();
+    ```
+- 删除关联  
+    ```php
+    $book = Book::find(11);
+    $book->user()->dissociate();
+    $book->save();
+    ```
+    > 在删除关联后,如果遍历book时,查询关联用户时,会出现null数据,而产生错误,此时可以在设置关联时添加withDefault()方法
+
+    ```php
+    public function user(){
+        return $this->belongsTo("user::class")->withDefault([
+            'id' => -1,
+            'usernamel' => '默认用户'
+        ]);
+    }
+    ```
+### 多对多关联数据操作
+#### 关联写入
+1. 新增
+    ```php
+    $user User::find(99);
+    $roleId = 1;
+    $user->role()->attach($roleId);
+    //附加字段数据
+    $user->role()->attach($roleId,['datails' => '呃']);
+    //批处理
+    $user->role()->attach([1,2,3]);
+    ```
+    > 此处发现,并不会检测重复
+
+1. 唯一性处理
+    ```php
+    $user->role()->sync([1,2,3]);
+    ```
+#### 删除
+```php
+$user->role()->detach($roleId);
+```
+> 此外发现如果有多条相同记录,会同时删除
+
+#### 修改
+```php
+$user->role()->update(['details'=>'哈']);
+```
+
+## 请求和依赖注入
+### Request请求
+1. 创建新控制器
+    ```shell
+    php artisan make:controller UserController
+    ```
+1. 配置路由
+    ```php
+    Route::prefix('user')->name('user.')->group(function(){
+        Route::any('/',[\App\Http\Controllers\UserController::class,'index']);
+    });
+    ```
+1. 注册request对象
+    ```php
+    public function index(Request $request){
+        return $request->input('name');
+    }
+    ```
+1. 获取请求信息
+    1. 获取get信息
+    ```php
+    $request->all();
+    ```
+    1. 获取路由匹配数据
+    ```php
+    //路由:/{id}/{uid}
+    public function index(Request $request,$id,$uid){
+        ...
+    }
+    ```
+1. 获取当前uri
+    ```php
+    return $request->path();
+    ```
+    > 派生: url() fullUrl()
+
+1. 判断当前uri是否匹配
+    ```php
+    return $request->is('user/*');
+    ```
+1. 判断请求方式
+    ```php
+    // get post ...
+    return $request->isMethod('post');
+    ```
+### 依赖注入
+Request对象,不需要new,是因为系统的服务空喊自动注入的.依赖注入的对象可以直接使用
+```php
+public function index(Request $request,TaskController $task){
+    return $task->read(10);
+}
+```
+
+### 请求方法
+#### 常用 
+- all()    
+获取全部请求参数
+- input()    
+获取指定字段
+    ```php
+    // 参数2 默认值
+    return $request->input('username','default');
+    ```
+    ```php
+    //动态方式获取
+    return $reqeust->name;
+    ```
+#### 数组参数获取
+1. 新建表单模拟
+    ```php
+    public function form(){
+        return view('form');
+    }
+    ```
+
+    ```html
+    <form action="/user/10/5" method="get">
+        <!--
+        <input type="" name="_token" value="{{csrf_token()}}">
+        <input type="hidden" name="_method" value="PUT">
+        -->
+        @csrf
+        <input type="checkbox" name="select[]" id=""value="1">
+        <input type="checkbox" name="select[]" id=""value="2">
+        <input type="checkbox" name="select[]" id=""value="3">
+        <button type="submit">提交</button>
+    </form>
+    ```
+1. 配置路由
+    ```php
+    Route::prefix('user')->name('user.')->group(function(){
+        Route::any('/',[\App\Http\Controllers\UserController::class,'index']);
+        Route::any('/{id}/{uid}',[\App\Http\Controllers\UserController::class,'index']);
+        Route::any('/form',[\App\Http\Controllers\UserController::class,'form']);
+    });
+    ```
+1. 获取数组数据
+    ```php
+    return $reqeust->input('select.1');
+    ```
+
+### 常用方法
+- boolean()    
+返回布尔值
+- ip()    
+返回ip
+- only    
+只接受固定参数
+    ```php
+    $request->only(['age','gender']);
+    ```
+- except()    
+排除不要的参数
+    ```php
+    $request->except(['_token']);
+    ```
+- has()    
+判断参数是否存在(1个或者多个)
+    ```php
+    return $request->has('name');
+    return $request->has(['name','age']);
+    ```
+- hasAny()
+判断参数其中一仩是否存在
+    ```php
+    return $request->hasAny(['name','age']);
+    ```
+- filled()    
+判断参数存在,并且不为空
+- missing()    
+判断参数不存在(为空也不行)
+
+### request()助手函数
+不用依赖注入,可以使用助手函数
+```php
+return request()->input();
+```
+
+### url
+
+#### 助手函数
+
+1. 生成url地址
+    ```php
+    $user = User:;find(19);
+    return url('/user/'.$user->id);
+    ```
+1. 作为对象
+    1. 获取当前url
+        ```php
+        return url()->current();
+        ```
+    1. 获取当前url,带参数
+        ```php
+        return url()->full();
+        ```
+    1. 获取上一个url
+        ```php
+        return url()->previous();
+        ```
+    1. 生成一个签名url
+        1. 生成
+        ```php
+        return url()->signedRoute('url.id',['id'=>5]);
+        ```
+        1. 验证
+        ```php
+        return request()->hasValidSignature();
+        ````
+
+#### route()方法
+
+```php
+Route::any('/usr/{id}',[\App\Http\Controllers\UserController::class,'url'])->name('url.id');
+```
+```php
+return route('url.id',['id'->5]);
+```
+
+#### 获取控制器的url
+```php
+return action([\App\Http\Controllers\UserController::class,'url'],['id'=>11]);
+```
+
+### cookie
+
+### session
+1. request()助手函数
+    ```php
+    return request()->session()->get();
+    ```
+1. 类的静态方法
+    ```php
+    return Session::get();
+    ````
+1. 助手函数
+    ```php
+    return session()->get();
+    ````
+1. 常用方法
+    - get()
+    - all()
+    - set()
+    - push()    
+    数组方法
+        ```php
+        Session::push('info.name','Mr.Liu');
+        Session::push('info.name','Mr.Wang');
+        Session::push('info.name','Mr.Zhang');
+        return Session::get('info');
+        ```
+    - flash()    
+    被请求一次就失效
+    - reflash()     
+    保持所有flash()不被删除
+    - keep()    
+    保持所有某个flash()不被删除
+    - forget()    
+    删除某个session
+    - regenerate()    
+    重新生成session id
+
+ 
+
+`
