@@ -60,7 +60,12 @@ class UserController extends Controller
     public function show(User $user)
     {
         //dd($user->toArray());
-        return view('user.show',compact('user'));
+        //dd(\Auth::user()->isFollow($user->id));
+        $is_follow = "";
+        if(Auth::check())
+            $is_follow = \Auth::user()->isFollow($user->id)?'取消关注':'关注';
+        $blogs = $user->blogs()->paginate('10');
+        return view('user.show',compact('blogs','user','is_follow'));
 
     }
 
@@ -88,6 +93,7 @@ class UserController extends Controller
         if($request->password){
             $user->password = bcrypt($request->password);
         }
+        $user->email = $request->email;
         $user->mobile=$request->mobile??$user->mobile;
         $user->save();
         session()->flash('success','用户信息修改成功');
@@ -99,8 +105,15 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        $this->authorize('delete',$user);
         $user->delete();
         session()->flash('success','删除用户成功');
         return redirect()->route('user.index');
+    }
+
+
+    public function follow(User $user){
+        \Auth::user()->followToggle($user->id);
+        return back();
     }
 }

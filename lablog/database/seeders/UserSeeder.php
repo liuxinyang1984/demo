@@ -19,6 +19,12 @@ class UserSeeder extends Seeder
         User::factory(50)->create();
         $user = User::find(1);
         $user->username = 'admin';
+        $user->email = 'xsdlx@163.com';
+        $user->password = Hash::make('88888888');
+        $user->is_admin = 1;
+        $user->save();
+        $user = User::find(2);
+        $user->username = 'admin2';
         $user->password = Hash::make('88888888');
         $user->is_admin = 1;
         $user->save();

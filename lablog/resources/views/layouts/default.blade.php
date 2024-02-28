@@ -56,6 +56,9 @@
 
     })
 </script>
+<style>
+@yield('style')
+</style>
 @yield('js')
 
 </html>

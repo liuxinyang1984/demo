@@ -44,4 +44,36 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function blogs(){
+        return $this->hasMany(Blog::class);
+    }
+
+    // 查看当前用户的粉丝
+    public function follower(){
+        return $this->belongsToMany(User::class,'follows','follower','user_id');
+    }
+    // 查看当前用户关注的用户
+    public function following(){
+        return $this->belongsToMany(User::class,'follows','user_id','follower');
+    }
+
+    // 当前用户是否关注该用户(id)
+    public function isFollow($uid){
+        //echo "<pre>";
+        //echo "isFollow()\n";
+        //echo "uid:".$uid."\n";
+
+        //echo "当前用户:".$this->id;
+        //$res = $this->following()->get();
+        //dd($res);
+
+        return $this->following()->wherePivot('follower',$uid)->first();
+    }
+
+    // 关注或者取关
+    public function followToggle($ids){
+        $ids = is_array($ids)?:[$ids];
+        $this->following()->withTimestamps()->toggle($ids);
+    }
 }

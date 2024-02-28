@@ -20,15 +20,22 @@
                     <td scope="row">{{$user->username}}</td>
                     <td scope="row">{{$user->nickname}}</td>
                     <td scope="row">
-                        <div class="btn-group" role="group" aria-label="option button a">
+                        <form action="{{route('user.destroy',$user)}}" method="post" id="delete-user-{{$user->id}}" class="m-0">
+                            @csrf
+                            @method('DELETE')
+                            <!-- <button type="submit" class="btn btn-danger btn-sm ms-2">删除</button> -->
+                        </form>
+                        <div class="btn-group w-100" role="group" aria-label="option button a">
                             <a href="{{route('user.show',$user)}}" class="btn btn-primary btn-sm ">查看</a>
+                            @can('update',$user)
                             <a href="{{route('user.edit',$user)}}" class="btn btn-info btn-sm ">修改</a>
-                            <form action="{{route('user.destroy',$user)}}" method="post">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">删除</button>
-                            </form>
-                            <a href="{{route('user.edit',$user)}}" class="btn btn-info btn-sm ">修改</a>
+                            @endcan
+                            @cannot('update',$user)
+                            <a href="#" class="btn btn-secondary btn-sm disabled">修改</a>
+                            @endcan
+                            @can('delete',$user)
+                            <a href="#" onclick="document.getElementById('delete-user-{{$user->id}}').submit()" class="btn btn-danger btn-sm ">删除</a>
+                            @endcan
                             <!-- <a href="{{route('user.destroy',$user)}}" class="btn btn-danger btn-sm">删除</a> -->
                         </div>
                     </td>
@@ -38,33 +45,7 @@
         </table>
     </div>
     <div class="card-footer text-muted">
-        <nav aria-label="分页">
-            <ul class="pagination">
-                <li class="page-item"><a class="page-link" href="{{$user_list->previousPageUrl()}}">Previous</a></li>
-                @if($user_list->total() < 8) @for ($i=1;$i<$user_list->lastPage();$i++)
-                    <li class="page-item"><a class="page-link" href="{{$users_list->url($i)}}">{{$i}}</a></li>
-                    @endfor
-                    @else
-                    @foreach($user_list->getUrlRange(1,6) as $page => $url)
-                    @if($user_list->currentPage() == $page)
-                    <li class="page-item"><a class="page-link active" href="{{$url}}">{{$page}}</a></li>
-                    @else
-                    <li class="page-item"><a class="page-link" href="{{$url}}">{{$page}}</a></li>
-                    @endif
-                    @endforeach
-                    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
-                    @foreach($user_list->getUrlRange($user_list->lastPage()-1,$user_list->lastPage()) as $page => $url)
-                    @if($user_list->currentPage() == $page)
-                    <li class="page-item"><a class="page-link active" href="{{$url}}">{{$page}}</a></li>
-                    @else
-                    <li class="page-item"><a class="page-link" href="{{$url}}">{{$page}}</a></li>
-                    @endif
-                    @endforeach
-
-                    @endif
-                    <li class="page-item"><a class="page-link" href="{{$user_list->nextPageUrl()}}">Next</a></li>
-            </ul>
-        </nav>
+        {{$user_list->links()}}
     </div>
 </div>
 @endsection

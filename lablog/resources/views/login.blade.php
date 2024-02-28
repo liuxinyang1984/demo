@@ -20,6 +20,9 @@
         </div>
     </form>
 </div>
+<div class="mt-2">
+    <p>忘记密码,请<a href="{{route('password.find')}}">点击找加密</a></p>
+</div>
 @endsection
 
 @section('js')
