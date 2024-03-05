@@ -150,7 +150,7 @@
       <li>
         <div class="dropdown-divider"></div>
       </li>
-      <li class="bsa-logout"><a class="dropdown-item" href="javascript:"><i
+      <li class="bsa-logout"><a class="dropdown-item" href="{{route('admin.logout')}}"><i
         class="bi bi-box-arrow-right me-2"></i>退出登录</a>
       </li>
     </ul>

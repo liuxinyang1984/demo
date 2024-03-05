@@ -14,9 +14,13 @@ class AdminController extends Controller
      */
     public function index()
     {
-        return view('admin::index');
+        $menus = $this->getMenus();
+        return view('admin::index',compact('menus'));
     }
 
+    public function home(){
+        return view('admin::home');
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -63,5 +67,55 @@ class AdminController extends Controller
     public function destroy($id)
     {
         //
+    }
+    public function getMenus(){
+        $menus =[
+            [
+                'title' => '首页',
+                'icon'  => 'bi bi-house',
+                'persission'    => 'permission',
+                'url'           =>  '/admin/home'
+            ],
+            [
+                'title' => '库存管理',
+                'icon'  => 'bi bi-bar-chart-line',
+                'persission'    => 'permission',
+                'menus'         =>[
+                    [
+                        'title' => '产品管理',
+                        'icon'  => 'bi bi-projector',
+                        'persission'    => 'permission',
+                        'url'           => "#"
+                    ],
+                    [
+                        'title' => '配件管理',
+                        'icon'  => 'bi bi-projector',
+                        'persission'    => 'permission',
+                        'url'           => "#"
+                    ]
+                ]
+            ],
+            [
+                'title' => '库存设置',
+                'icon'  => 'bi bi-gear',
+                'persission'    => 'permission',
+                'menus'         =>[
+                    [
+                        'title' => '产品设置',
+                        'icon'  => 'bi bi-projector',
+                        'persission'    => 'permission',
+                        'url'           => "#"
+                    ],
+                    [
+                        'title' => '配件设置',
+                        'icon'  => 'bi bi-projector',
+                        'persission'    => 'permission',
+                        'url'           => "#"
+                    ]
+                ]
+            ],
+        ];
+
+        return $menus;
     }
 }

@@ -16,7 +16,7 @@
 
 
 
-    <title>bootstrap-admin开源免费响应式后台管理系统模板</title>
+    <title>{{config('app.name')}}</title>
 
 
     <!-- Vite -->
@@ -89,27 +89,7 @@
         body: '确定要退出吗？',
         cancelBtn: true,
         ok: function () {
-
-
-          //请求退出路由
-          $.ajax({
-            method: 'post',
-            url: '/logout',
-          }).then(response => {
-
-            if (response.code === 200) {//跳转到后台首页
-
-              $.toasts({
-                type: 'success',
-                content: '退出成功',
-                onHidden: function () {
-                  top.location.replace('/pages/login.html');
-                }
-              })
-            }
-          });
-
-
+          top.location.replace('/admin/logout')
         }
       })
 

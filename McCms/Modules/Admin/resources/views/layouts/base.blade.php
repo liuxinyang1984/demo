@@ -19,13 +19,16 @@
 
     @yield('head')
 
-    <title>bootstrap-admin开源免费响应式后台管理系统模板</title>
+    <title>{{config('app.name')}}</title>
 </head>
 <body class="bg-body-tertiary py-3">
 <div class="container-fluid">
     @yield('container')
 </div>
+
 @yield('more')
+
+@include('admin::layouts._toast')
 
 <script>
     @yield('js')

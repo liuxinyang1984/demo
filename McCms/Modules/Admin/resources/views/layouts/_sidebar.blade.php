@@ -1,4 +1,4 @@
-<div class="bsa-sidebar">
+<div class="bsa-sidebar row">
     <!--  侧边栏头部部分(展示品牌logo)  -->
     <div class="bsa-sidebar-header">
         <img src="/dist/img/favicon-32x32.png" class="bsa-logo-icon" alt="logo-icon">
@@ -8,41 +8,31 @@
     <div class="bsa-sidebar-body" data-overlayscrollbars-initialize>
         <!--   侧边栏的菜单     -->
         <ul class="bsa-menu" data-bsa-toggle="sidebar" data-accordion="true" data-click-close="true">
+            @foreach($menus as $menu)
             <li>
-                <a href="{{route('admin.home')}}">
-                    <i class="bi bi-house"></i>首页
-                </a>
-            </li>
-
-            <li>
+                @if(isset($menu['menus']))
                 <a href="javascript:" class="has-children">
-                    <i class="bi bi-filetype-html"></i>库存管理
+                    <i class="{{$menu['icon']}}"></i>{{$menu['title']}}
                 </a>
                 <ul>
+                    @foreach($menu['menus'] as $subMenu)
                     <li>
-                        <a href="pages/layout1.html">产品</a>
+                        <a href="{{$subMenu['url']}}">
+                            @if(isset($subMenu['icon']))
+                            <i class="{{$subMenu['icon']}}"></i>
+                            @endif
+                            {{$subMenu['title']}}
+                        </a>
                     </li>
-                    <li>
-                        <a href="pages/layout2.html">配件</a>
-                    </li>
+                    @endforeach
                 </ul>
-            </li>
-
-            <li>
-                <a href="javascript:" class="has-children">
-                    <i class="bi bi-filetype-html"></i>库存设置
+                @else
+                <a href="{{$menu['url']}}">
+                    <i class="{{$menu['icon']}}"></i>{{$menu['title']}}
                 </a>
-                <ul>
-                    <li>
-                        <a href="pages/layout1.html">产品</a>
-                    </li>
-                    <li>
-                        <a href="pages/layout2.html">配件</a>
-                    </li>
-                </ul>
+                @endif
             </li>
-
-
+            @endforeach
 
             <li>
                 <a href="javascript:" class="has-children">
@@ -50,7 +40,7 @@
                 </a>
                 <ul>
                     <li>
-                        <a href="pages/user.html">用户列表</a>
+                        <a href="/admin/role">权限列表</a>
                     </li>
                     <li>
                         <a href="pages/user2">用户列表(多部门版)</a>
@@ -78,5 +68,8 @@
 
 
         </ul>
+    </div>
+    <div class="col align-self-end text-center">
+        <small>Powerby&nbsp;&nbsp;<a href="https://www.imcookie.cn">Mr.Cookie</a></small>
     </div>
 </div>
