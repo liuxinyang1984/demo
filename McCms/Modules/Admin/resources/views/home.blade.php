@@ -6,6 +6,7 @@
 
 <!-- 主体部分 -->
 @section('container')
+@include('admin::layouts._error')
     <!--  为了美观,建议大家都把新内容都放card组件里面  -->
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-body">

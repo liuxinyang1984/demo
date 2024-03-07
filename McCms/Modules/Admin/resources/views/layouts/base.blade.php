@@ -23,6 +23,7 @@
 </head>
 <body class="bg-body-tertiary py-3">
 <div class="container-fluid">
+    @include('admin::layouts._error')
     @yield('container')
 </div>
 

@@ -10,3 +10,15 @@
     </script>
     @endif
 @endforeach
+@if(count($errors))
+    @foreach($errors->all() as $error)
+        <script>
+        $.toasts({
+            type: 'warning',
+            content: '{{$error}}',
+            onHidden: function () {
+            }
+        })
+    </script>
+    @endforeach
+@endif

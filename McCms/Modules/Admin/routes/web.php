@@ -26,6 +26,8 @@ Route::prefix('admin')->name('admin.')->middleware(['web','auth:admin'])->group(
     // 框架内部主页的路由
     Route::get('home',[AdminController::class,'home'])->name('home');
     Route::resource('role',RoleController::class);
+    Route::get('role/permission/{role}',[RoleController::class,'permission'])->name('role.permission');
+    Route::put('role/permission/{role}',[RoleController::class,'updatePermission'])->name('role.permission.update');
 });
 Route::prefix('admin')->name('admin.')->group(function(){
     Auth::routes();

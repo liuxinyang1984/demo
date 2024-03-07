@@ -18,6 +18,5 @@ class AdminSeeder extends Seeder
         $user->username = 'admin';
         $user->nickname = '系统管理员';
         $user->save();
-
     }
 }
