@@ -31,7 +31,7 @@ class RoleController extends Controller
         try{
             Role::create([
                 'name'=>$request->name,
-                'ename'=>$request->ename
+                'cname'=>$request->cname
             ]);
         }catch(\Exception $e){
             dd($e->getMessage());
@@ -56,7 +56,7 @@ class RoleController extends Controller
     {
         $role->update([
             'name'=>$request->name,
-            'ename'=>$request->ename
+            'cname'=>$request->cname
         ]);
         session()->flash('success','修改成功');
         return back();
@@ -65,9 +65,13 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Role $role)
     {
-        //
+        if($role->delete()){
+            return back()->with('success','删除成功');
+        }else{
+            return back()->with('danger','删除失败');
+        }
     }
 
 

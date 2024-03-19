@@ -114,6 +114,19 @@ class AdminController extends Controller
                     ]
                 ]
             ],
+            [
+                'title' => '文章管理',
+                'icon'  => 'bi bi-book',
+                'persission'    => 'permission',
+                'menus'         =>[
+                    [
+                        'title' => '分类管理',
+                        'icon'  => 'bi bi-projector',
+                        'persission'    => 'permission',
+                        'url'           => "/article/category"
+                    ],
+                ]
+            ],
         ];
 
         return $menus;

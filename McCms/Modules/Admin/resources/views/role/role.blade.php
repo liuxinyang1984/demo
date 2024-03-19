@@ -21,10 +21,10 @@
 <div class="row mb-3">
     <label for="name" class="col-sm-3 col-form-label text-sm-end">角色标识</label>
     <div class="col-sm-9">
-        <input type="text" class="form-control" id="cname" name="ename" value="" data-fv-field="ename"
-            autocomplete="off" value="old('ename')">
-        <div class="invalid-feedback d-none" data-fv-validator="notEmpty" data-fv-for="name"
-            data-fv-result="NOT_VALIDATED" id="error-ename"></div>
+        <input type="text" class="form-control" id="cname" name="cname" value="" data-fv-field="cname"
+            autocomplete="off" value="old('cname')">
+        <div class="invalid-feedback d-none" data-fv-validator="notEmpty" data-fv-for="ename"
+            data-fv-result="NOT_VALIDATED" id="error-cname"></div>
     </div>
 </div>
 @endcomponent
@@ -58,116 +58,98 @@
     </div>
 
     <div class="card-body">
-      <div id="toolbar" class="d-flex flex-wrap gap-2 mb-2">
-        <button class="btn btn-light add-btn" data-bs-toggle="modal" data-bs-target="#addRole"><i
-          class="bi bi-plus"></i> 新增
-        </button>
-        <button class="btn btn-light batch-btn" disabled><i class="bi bi-trash"></i> 批量删除</button>
-        <button class="btn btn-light"><i class="bi bi-box-arrow-down"></i> 导入</button>
-        <button class="btn btn-light"><i class="bi bi-box-arrow-up"></i> 导出</button>
-      </div>
+        <div id="toolbar" class="d-flex flex-wrap gap-2 mb-2">
+            <button class="btn btn-light add-btn" data-bs-toggle="modal" data-bs-target="#addRole"><i
+                    class="bi bi-plus"></i> 新增
+            </button>
+            <button class="btn btn-light batch-btn" disabled><i class="bi bi-trash"></i> 批量删除</button>
+            <button class="btn btn-light"><i class="bi bi-box-arrow-down"></i> 导入</button>
+            <button class="btn btn-light"><i class="bi bi-box-arrow-up"></i> 导出</button>
+        </div>
+        <table id="table" class="table table-bordered table-hover">
+            <thead class="">
+                <tr>
+                    <!-- <th class="bs-checkbox " style="width: 36px; " data-field="0"> -->
+                    <!-- <div class="th-inner "><label><input name="btSelectAll" type="checkbox" -->
+                    <!-- autocomplete="off"><span></span></label></div> -->
+                    <!-- <div class="fht-cell"></div> -->
+                    <!-- </th> -->
+                    <th data-field="id" class="col-sm-1">
+                        <div class="th-inner sortable sortable-center both">ID</div>
+                        <div class="fht-cell"></div>
+                    </th>
+                    <th data-field="name" class="col-sm-1">
+                        <div class="th-inner ">角色名称</div>
+                        <div class="fht-cell"></div>
+                    </th>
+                    <th data-field="name" class="col-sm-1 text-left">
+                        <div class="th-inner ">角色描述</div>
+                        <div class="fht-cell"></div>
+                    </th>
+                    <th data-field="create_at" class="col-sm-8">
+                        <div class="th-inner ">加入时间</div>
+                        <div class="fht-cell"></div>
+                    </th>
+                    <th data-field="4" class="col-1">
+                        <div class="th-inner ">操作</div>
+                        <div class="fht-cell"></div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($roles as $role)
+                <tr>
+                    <td class="">{{$role->id}}</td>
+                    <td class="">{{$role->name}}</td>
+                    <td class="">{{$role->cname}}</td>
+                    <td class="">{{$role->created_at}}</td>
+                    <td class="" style="text-align: center; ">
+                        <button type="button" class="btn btn-success btn-sm edit-btn" data-bs-placement="top " data-bs-title="修改角色"
+                            data-bs-toggle="modal" data-bs-target="#edit_role_{{$role->id}}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
 
 
 
+                        <button type="button" class="btn btn-danger btn-sm edit-btn" data-bs-placement="top " data-bs-title="删除角色"
+                            data-bs-toggle="modal" data-bs-target="#del_role_{{$role->id}}">
+                            <i class="bi bi-trash3"></i>
+                        </button>
 
 
-
-<table id="table" class="table table-bordered table-hover">
-    <thead class="">
-        <tr>
-            <!-- <th class="bs-checkbox " style="width: 36px; " data-field="0"> -->
-                <!-- <div class="th-inner "><label><input name="btSelectAll" type="checkbox" -->
-                            <!-- autocomplete="off"><span></span></label></div> -->
-                <!-- <div class="fht-cell"></div> -->
-            <!-- </th> -->
-            <th data-field="id" class="col-sm-1">
-                <div class="th-inner sortable sortable-center both">ID</div>
-                <div class="fht-cell"></div>
-            </th>
-            <th data-field="name" class="col-sm-1">
-                <div class="th-inner ">角色名称</div>
-                <div class="fht-cell"></div>
-            </th>
-            <th data-field="name" class="col-sm-1 text-left">
-                <div class="th-inner ">角色描述</div>
-                <div class="fht-cell"></div>
-            </th>
-            <th data-field="create_at" class="col-sm-8">
-                <div class="th-inner ">加入时间</div>
-                <div class="fht-cell"></div>
-            </th>
-            <th data-field="4" class="col-1">
-                <div class="th-inner ">操作</div>
-                <div class="fht-cell"></div>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($roles as $role)
-        <tr>
-            <td class="">{{$role->id}}</td>
-            <td class="">{{$role->name}}</td>
-            <td class="">{{$role->cname}}</td>
-            <td class="">{{$role->created_at}}</td>
-            <td class="" style="text-align: center; ">
-                <button type="button" class="btn btn-success btn-sm edit-btn" data-bs-placement="top " data-bs-title="修改角色" data-bs-toggle="modal" data-bs-target="#edit_role_{{$role->id}}">
-                    <i class="bi bi-pencil"></i>
-                </button>
-
-                <button type="button" class="btn btn-danger btn-sm del-btn mx-1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="删除">
-                    <i class="bi bi-trash3"></i>
-                </button>
-
-                <a href="{{route('admin.role.permission',$role)}}" type="button" class="btn btn-primary btn-sm node-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="分配节点">
-                    <i class="bi bi-diagram-2"></i>
-                </a>
-            </td>
-            @component('admin::components.modal',['id'=>'edit_role_'.$role->id,'title'=>'编辑角色','url'=>route('admin.role.update',$role->id)])
-            <div class="row mb-3">
-                <label for="name" class="col-sm-3 col-form-label text-sm-end">角色名称</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" id="name" name="name" data-fv-field="name" autocomplete="off" value="{{$role->name}}">
-                    <div class="invalid-feedback d-none" data-fv-validator="notEmpty" data-fv-for="name"
-                        data-fv-result="NOT_VALIDATED" id="error-name"></div>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <label for="name" class="col-sm-3 col-form-label text-sm-end">角色标识</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" id="cname" name="ename" data-fv-field="ename"
-                        autocomplete="off" value="{{$role->cname}}">
-                    <div class="invalid-feedback d-none" data-fv-validator="notEmpty" data-fv-for="name"
-                        data-fv-result="NOT_VALIDATED" id="error-ename"></div>
-                </div>
-            </div>
-            @endcomponent
-
-
-        </tr>
-        @endforeach
-
-
-
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                        <a href="{{route('admin.role.permission',$role)}}" type="button" class="btn btn-primary btn-sm node-btn"
+                            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="分配节点">
+                            <i class="bi bi-diagram-2"></i>
+                        </a>
+                    </td>
+                    @component('admin::components.modal',['id'=>'edit_role_'.$role->id,'title'=>'编辑角色','url'=>route('admin.role.update',$role->id),'method'=>'PUT'])
+                    <div class="row mb-3">
+                        <label for="name" class="col-sm-3 col-form-label text-sm-end">角色名称</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="name" name="name" data-fv-field="name"
+                                autocomplete="off" value="{{$role->name}}">
+                            <div class="invalid-feedback d-none" data-fv-validator="notEmpty" data-fv-for="name"
+                                data-fv-result="NOT_VALIDATED" id="error-name"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="name" class="col-sm-3 col-form-label text-sm-end">角色标识</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="cname" name="cname"  value="{{$role->cname}}">
+                            <div class="invalid-feedback d-none" data-fv-validator="notEmpty" data-fv-for="cname"
+                                data-fv-result="NOT_VALIDATED" id="error-cname"></div>
+                        </div>
+                    </div>
+                    @endcomponent
+                    @component('admin::components.modal',['id'=>'del_role_'.$role->id,'title'=>'删除角色','url'=>route('admin.role.destroy',$role->id),'method'=>'DELETE'])
+                    <p>确定要删除角色{{$role->name}}吗?</p>
+                    @endcomponent
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
-  </div>
+    </div>
 @endsection
 
 <!-- 主体以下 -->
@@ -191,15 +173,11 @@
     @endforeach
 @endif
 
-
-<script src="/lib/@popperjs/core/dist/umd/popper.min.js"></script>
-<!--假数据模拟,生产环境中请直接删除该js-->
-
-
-
-
-
-
+<script>
+    del_role(id)=>{
+        console.log(id)
+    }
+</script>
 
 @endsection
 
