@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Modules\Admin\Database\Seeders\PermissionSeeder;
 use Modules\Admin\Database\Seeders\RoleSeeder;
+use Modules\Article\Database\Seeders\CategorySeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,5 +25,6 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminSeeder::class);
         $this->call(PermissionSeeder::class);
         $this->call(RoleSeeder::class);
+        $this->call(CategorySeeder::class);
     }
 }

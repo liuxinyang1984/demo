@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Article\App\Http\Controllers\PostController;
+
 // use Modules\Article\App\Http\Controllers\ArticleController;
 
 /*
@@ -19,4 +21,6 @@ Route::group(['middleware'=>'web','auth:admin'], function () {
 });
 Route::prefix('article')->name('article.')->middleware(['web','auth:admin'])->group(function () {
     Route::resource('category',CategoryController::class);
+    Route::resource('post',PostController::class);
+    route::post('test',[PostController::class,'test'])->name('test');
 });

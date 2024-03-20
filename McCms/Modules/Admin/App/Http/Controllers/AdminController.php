@@ -125,6 +125,12 @@ class AdminController extends Controller
                         'persission'    => 'permission',
                         'url'           => "/article/category"
                     ],
+                    [
+                        'title' => '文章管理',
+                        'icon'  => 'bi bi-book',
+                        'persission'    => 'permission',
+                        'url'           => "/article/post"
+                    ],
                 ]
             ],
         ];

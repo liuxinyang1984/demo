@@ -1,0 +1,77 @@
+{
+  "resources/assets/js/app.js": {
+    "file": "assets/app-CqlTTkb3.js",
+    "src": "resources/assets/js/app.js",
+    "isEntry": true,
+    "css": [
+      "assets/app-DJUd0pQU.css"
+    ],
+    "assets": [
+      "assets/loading-B66AhzhD.gif",
+      "assets/loading@2x-CD0FY8Sy.gif",
+      "assets/loading@3x-nOM_-STW.gif",
+      "assets/fontawesome-webfont-C7hRAymh.eot",
+      "assets/fontawesome-webfont-BBOCxDGX.woff2",
+      "assets/fontawesome-webfont-D1RX9NVh.woff",
+      "assets/fontawesome-webfont-DYfWyl7r.ttf",
+      "assets/fontawesome-webfont-BKBKvXmA.svg",
+      "assets/editormd-logo-jvb2ulJo.eot",
+      "assets/editormd-logo-Bc6eevuh.woff",
+      "assets/editormd-logo-CP9P1yrR.ttf",
+      "assets/editormd-logo-POCvA6qy.svg"
+    ]
+  },
+  "resources/assets/sass/app.scss": {
+    "file": "assets/app-l0sNRNKZ.js",
+    "src": "resources/assets/sass/app.scss",
+    "isEntry": true
+  },
+  "resources/editor.md/fonts/editormd-logo.eot": {
+    "file": "assets/editormd-logo-jvb2ulJo.eot",
+    "src": "resources/editor.md/fonts/editormd-logo.eot"
+  },
+  "resources/editor.md/fonts/editormd-logo.svg": {
+    "file": "assets/editormd-logo-POCvA6qy.svg",
+    "src": "resources/editor.md/fonts/editormd-logo.svg"
+  },
+  "resources/editor.md/fonts/editormd-logo.ttf": {
+    "file": "assets/editormd-logo-CP9P1yrR.ttf",
+    "src": "resources/editor.md/fonts/editormd-logo.ttf"
+  },
+  "resources/editor.md/fonts/editormd-logo.woff": {
+    "file": "assets/editormd-logo-Bc6eevuh.woff",
+    "src": "resources/editor.md/fonts/editormd-logo.woff"
+  },
+  "resources/editor.md/fonts/fontawesome-webfont.eot": {
+    "file": "assets/fontawesome-webfont-C7hRAymh.eot",
+    "src": "resources/editor.md/fonts/fontawesome-webfont.eot"
+  },
+  "resources/editor.md/fonts/fontawesome-webfont.svg": {
+    "file": "assets/fontawesome-webfont-BKBKvXmA.svg",
+    "src": "resources/editor.md/fonts/fontawesome-webfont.svg"
+  },
+  "resources/editor.md/fonts/fontawesome-webfont.ttf": {
+    "file": "assets/fontawesome-webfont-DYfWyl7r.ttf",
+    "src": "resources/editor.md/fonts/fontawesome-webfont.ttf"
+  },
+  "resources/editor.md/fonts/fontawesome-webfont.woff": {
+    "file": "assets/fontawesome-webfont-D1RX9NVh.woff",
+    "src": "resources/editor.md/fonts/fontawesome-webfont.woff"
+  },
+  "resources/editor.md/fonts/fontawesome-webfont.woff2": {
+    "file": "assets/fontawesome-webfont-BBOCxDGX.woff2",
+    "src": "resources/editor.md/fonts/fontawesome-webfont.woff2"
+  },
+  "resources/editor.md/images/loading.gif": {
+    "file": "assets/loading-B66AhzhD.gif",
+    "src": "resources/editor.md/images/loading.gif"
+  },
+  "resources/editor.md/images/loading@2x.gif": {
+    "file": "assets/loading@2x-CD0FY8Sy.gif",
+    "src": "resources/editor.md/images/loading@2x.gif"
+  },
+  "resources/editor.md/images/loading@3x.gif": {
+    "file": "assets/loading@3x-nOM_-STW.gif",
+    "src": "resources/editor.md/images/loading@3x.gif"
+  }
+}

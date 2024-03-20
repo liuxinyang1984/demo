@@ -13,8 +13,8 @@ class Post extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = [];
-    
+    protected $fillable = ['title','content','author','cate_id'];
+
     protected static function newFactory(): PostFactory
     {
         //return PostFactory::new();

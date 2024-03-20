@@ -60,8 +60,8 @@
 <script src="/dist/js/bootstrap-admin.min.js"></script>
 
 <!-- 自定义js,考虑可以用vite来处理 -->
-<script src="/dist/js/app.js"></script>
-
+{{-- <script src="/dist/js/app.js"></script> --}}
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 
 
 

@@ -22,7 +22,6 @@ class Category extends Model
     }
     static public function getAll(){
         $tree = self::getTree();
-        //dump($tree);
         $result = self::renameTree($tree);
         // echo "<pre>";
         // foreach($result as $name){
@@ -31,7 +30,7 @@ class Category extends Model
         // die;
         return $result;
     }
-    static protected function getTree($pid=0){
+    static public function getTree($pid=0){
         $categories = self::all();
         $data = [];
         foreach($categories as  $cate){

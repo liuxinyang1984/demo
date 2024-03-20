@@ -1,5 +1,5 @@
 import './bootstrap';
-import.meta.glob([
-  '../bsa/**',
-]);
+// import.meta.glob([
+  // '../bsa/**',
+// ]);
 console.log(location.href)
