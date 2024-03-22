@@ -7,20 +7,15 @@
 
 <!-- 主体部分 -->
 @section('container')
-<div id="editor">
-    <!-- Tips: Editor.md can auto append a `<textarea>` tag -->
-    <textarea style="display:none;">### Hello Editor.md !</textarea>
-</div>
-<script type="text/javascript">
-    $(function() {
-        var editor = editormd("editor", {
-            // width: "100%",
-            height: "900px",
-            // markdown: "xxxx",     // dynamic set Markdown text
-            path : "editor.md/lib/"  // Autoload modules mode, codemirror, marked... dependents libs path
-        });
-    });
-</script>
+    <!-- <form action="{{route('upload')}}" method="post" enctype="multipart/form-data"> -->
+    <form action="/upload?gid=90909090909" method="post" enctype="multipart/form-data">
+        @csrf
+        <div class="mb-3">
+            <label for="formFile" class="form-label">请选择上传文件</label>
+            <input class="form-control" type="file" id="formFile" name="editormd-image-file">
+        </div>
+        <input type="submit" value="提交" class="btn btn-success">
+    </form>
 @endsection
 
 <!-- 主体以下 -->

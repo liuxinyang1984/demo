@@ -133,6 +133,12 @@ class AdminController extends Controller
                     ],
                 ]
             ],
+            [
+                'title' => '测试',
+                'icon'  => 'bi bi-house',
+                'persission'    => 'permission',
+                'url'           =>  '/article/test'
+            ],
         ];
 
         return $menus;

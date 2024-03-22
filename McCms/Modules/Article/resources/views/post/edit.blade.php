@@ -2,7 +2,6 @@
 
 <!-- head部分head部分 -->
 @section('head')
-<link rel="stylesheet" href="/lib/@wangeditor/editor/dist/css/style.css">
 @endsection
 
 <!-- 主体部分 -->
@@ -11,7 +10,7 @@
 <!-- wangeditor 部分
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form action="{{route('article.test')}}" method="post">
+            <form action="" method="post">
             @csrf
             <textarea style="display:none;" name="content" id="content">@isset($post){{$post->content}}@endisset</textarea>
                 <div class="mb-3">
@@ -39,7 +38,7 @@
 
 <div class="card border-0 shadow-sm">
     @isset($post)
-    <form action="{{route('article.post.update',$post->id)}}" method="post">
+    <form action="{{route('article.post.update.editormd',$post->id)}}" method="post">
     <div class="card-header bg-body py-3">
         <h2>编辑文章</h2>
     </div>
@@ -209,7 +208,10 @@
             width: "100%",
             height: "600px",
             // markdown: "xxxx",     // dynamic set Markdown text
-            path : "/article/editor.md/lib/"  // Autoload modules mode, codemirror, marked... dependents libs path
+            path : "/article/editor.md/lib/", // Autoload modules mode, codemirror, marked... dependents libs path
+            imageUpload    : true,
+            imageFormats   : ["jpg", "jpeg", "gif", "png"],
+            imageUploadURL : "/upload_editormd",
         });
     });
 </script>

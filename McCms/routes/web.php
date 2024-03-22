@@ -20,3 +20,5 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::post('/upload', [App\Http\Controllers\UploadController::class, 'image'])->name('upload.image');
+Route::post('/upload_editormd', [App\Http\Controllers\UploadController::class, 'editormd'])->name('upload.editormd');

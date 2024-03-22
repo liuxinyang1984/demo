@@ -22,5 +22,5 @@ Route::group(['middleware'=>'web','auth:admin'], function () {
 Route::prefix('article')->name('article.')->middleware(['web','auth:admin'])->group(function () {
     Route::resource('category',CategoryController::class);
     Route::resource('post',PostController::class);
-    route::post('test',[PostController::class,'test'])->name('test');
+    route::get('test',[PostController::class,'test'])->name('post.test');
 });

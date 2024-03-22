@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('title')->comment('标题|input');
             $table->string('author')->nullable()->comment('作者');
-            $table->integer('cate_id')->default(0)->comment('分类id');
+            $table->unsignedBigInteger('cate_id');
+            // $table->foreign('cate_id')->references('id')->on('categories')->cascadeOnDelete();
+            $table->foreign('cate_id')->references('id')->on('categories')->onDelete('cascade');
             $table->text('content')->comment('内容');
             $table->string('thumb')->nullable()->comment('缩略图');
             $table->integer('click')->default(0)->comment('点击数');

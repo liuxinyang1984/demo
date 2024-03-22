@@ -82,7 +82,7 @@ class PostController extends Controller
         //
     }
 
-    public function test(Request $request){
-        dd($request->all());
+    public function test(){
+        return view('article::post.test');
     }
 }
