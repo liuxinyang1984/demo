@@ -126,6 +126,26 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+        'telnull' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/TelNull.log'),
+        ],
+        'level' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/Level.log'),
+        ],
+        'exclude' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/Exclude.log'),
+        ],
+        'final' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/Final.log'),
+        ],
+        'samephone' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/SamePhone.log'),
+        ],
 
     ],
 
