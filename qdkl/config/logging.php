@@ -146,6 +146,14 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/SamePhone.log'),
         ],
+        'inviterroot' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/InviterRoot.log'),
+        ],
+        'fixphone' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/FixPhone.log'),
+        ],
 
     ],
 
